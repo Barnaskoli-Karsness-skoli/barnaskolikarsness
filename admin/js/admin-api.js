@@ -52,7 +52,17 @@
 
   function getJson(path) {
     return authHeaders().then(function (extraHeaders) {
-      return fetch(BASE + "/" + path, { headers: extraHeaders });
+      // cache: "no-store" — every one of these reads (get-page-data,
+      // get-news-item, list-news) is a write-then-read confirmation inside
+      // the admin (load-to-edit, or a post-save/-delete list refresh), and
+      // each carries a public Cache-Control: max-age=300 header meant for
+      // the public site's CDN caching, not the admin's own browser. Without
+      // this, a browser that had already loaded the same URL once (e.g.
+      // opening news.html?id=x before deleting it) can serve that stale
+      // response straight from its local disk cache — the server-side
+      // Cache-Tag purge these save/delete Functions already do only
+      // invalidates the CDN, not a browser's own cache.
+      return fetch(BASE + "/" + path, { headers: extraHeaders, cache: "no-store" });
     }).then(function (response) {
       return response.json().catch(function () { return {}; }).then(function (data) {
         if (!response.ok) {
