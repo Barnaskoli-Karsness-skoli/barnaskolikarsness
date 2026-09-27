@@ -1,0 +1,221 @@
+/**
+ * admin.css
+ * Admin-only styles — never linked from any public page. Structural
+ * starting point per CLAUDE.md: /Postit files/tickets.html's dashboard
+ * pattern (login dialog, summary cards, table-with-row-actions,
+ * settings-card), re-implemented here against this project's own tokens
+ * (css/main.css) rather than copied verbatim — tickets.html's login logic
+ * itself does NOT carry over (see admin/js/admin.js's placeholder gate).
+ */
+
+/* [hidden] must win over any unconditional `display` rule below —
+   ticket.html (the reference this dashboard pattern was adapted from)
+   had this same guard. Without it, admin.js's loginScreen.hidden = true
+   after a successful login has no visual effect: .admin-login-screen's
+   own `display:grid` (an author rule) overrides the browser's UA default
+   [hidden]{display:none}, so the login screen stays on screen — full
+   viewport height — with the now-unhidden dashboard pushed below it. */
+[hidden]{
+  display:none !important;
+}
+
+/* ---------------------------------------------------------------
+   Login gate (real Identity — Phase 8)
+--------------------------------------------------------------- */
+.admin-login-screen{
+  min-height:100vh;display:grid;place-items:center;padding:20px;
+}
+.admin-login-card{
+  width:min(380px,100%);padding:30px;text-align:center;
+}
+.dialog-kicker{
+  display:block;margin-bottom:8px;color:#64838c;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+}
+.admin-login-card h1{margin:0 0 10px;font:600 27px 'Space Grotesk';letter-spacing:-.04em;color:#183847}
+.admin-login-card p{margin:0 0 22px;color:#6e8990;font-size:12.5px;line-height:1.6}
+.admin-login-note{
+  margin-top:14px;padding:10px 12px;border-radius:10px;
+  background:rgba(255,205,190,.28);color:#8a5a4f;font-size:11px;line-height:1.5;text-align:left;
+}
+
+/* ---------------------------------------------------------------
+   Shell + heading
+--------------------------------------------------------------- */
+.admin-shell{width:min(1180px,calc(100% - 56px));margin:0 auto;padding:34px 0 80px}
+.admin-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.admin-heading h1{margin:10px 0 6px;font:700 clamp(30px,4vw,44px)/1.05 'Space Grotesk';letter-spacing:-.04em;color:#183847}
+.admin-heading p{max-width:480px;margin:0;color:#66808b;font-size:13px;line-height:1.6}
+.admin-actions{display:flex;align-items:center;gap:8px}
+
+/* ---------------------------------------------------------------
+   Tabs
+--------------------------------------------------------------- */
+.admin-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:30px;padding-bottom:14px;border-bottom:1px solid rgba(116,158,163,.24)}
+.admin-tab-btn{
+  padding:10px 15px;border:1px solid transparent;border-radius:11px;
+  background:transparent;color:#5d7b84;cursor:pointer;
+  font:700 12px 'DM Sans';letter-spacing:.02em;
+}
+.admin-tab-btn:hover{background:rgba(255,255,255,.4)}
+.admin-tab-btn.is-active{background:#1d4a59;color:#fff}
+.admin-panel{display:none;margin-top:26px}
+.admin-panel.is-active{display:block}
+
+/* ---------------------------------------------------------------
+   Page editor panel
+--------------------------------------------------------------- */
+.editor-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:16px}
+.editor-toolbar label{color:#5d7b84;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.page-select{
+  min-width:280px;padding:11px 13px;color:#264b58;
+  border:1px solid rgba(160,192,195,.55);border-radius:10px;outline:0;
+  background:rgba(255,255,255,.6);font:13px 'DM Sans';
+}
+.editor-wrap{
+  padding:22px;border:1px solid var(--border);border-radius:16px;
+  background:rgba(255,255,255,.4);box-shadow:var(--shadow);backdrop-filter:blur(14px);
+  min-height:320px;
+}
+.editor-wrap .codex-editor{font-family:'DM Sans',sans-serif}
+.editor-empty-hint{padding:40px 10px;text-align:center;color:#8ca3a8;font-size:12px}
+
+/* ---------------------------------------------------------------
+   Buttons, form fields, feedback — shared across admin panels
+--------------------------------------------------------------- */
+.submit-button{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 18px;border:0;border-radius:11px;
+  background:#1d4a59;color:#fff;cursor:pointer;
+  font:700 12px 'DM Sans';letter-spacing:.04em;
+}
+.submit-button:hover{background:#173c48}
+.submit-button:disabled{opacity:.55;cursor:wait}
+.secondary-button{
+  padding:11px 15px;border:1px solid rgba(117,165,170,.4);border-radius:10px;
+  background:rgba(255,255,255,.4);color:#3a5a63;cursor:pointer;font:700 11px 'DM Sans';
+}
+.secondary-button:hover{background:rgba(255,255,255,.65)}
+.danger-button{color:#a8544a;border-color:rgba(176,119,108,.35)}
+
+.form-message{min-height:20px;margin:12px 0 0;font-size:12px;font-weight:600}
+.form-message.is-success{color:#4e8a70}
+.form-message.is-error{color:#b66e68}
+.form-message.is-loading{color:#78969d}
+
+.admin-field{display:block;margin-top:16px}
+.admin-field>span{display:block;margin-bottom:6px;color:#5d7b84;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.admin-field input,.admin-field textarea,.admin-field select{
+  width:100%;padding:11px 13px;color:#264b58;
+  border:1px solid rgba(160,192,195,.55);border-radius:10px;outline:0;
+  background:rgba(255,255,255,.55);font:14px 'DM Sans';
+}
+.admin-field textarea{resize:vertical;line-height:1.5}
+.admin-field input:focus,.admin-field textarea:focus,.admin-field select:focus{
+  border-color:#73a8ae;box-shadow:0 0 0 3px rgba(115,168,174,.13);
+}
+.admin-two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.admin-checkbox-field{display:flex;align-items:center;gap:9px;margin-top:16px}
+.admin-checkbox-field input{width:17px;height:17px;accent-color:#2a6876}
+.admin-checkbox-field span{color:#416a74;font-size:12.5px;font-weight:600}
+
+/* ---------------------------------------------------------------
+   Repeatable-row lists — phone numbers, Quick Links, carousel images
+--------------------------------------------------------------- */
+.repeat-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.repeat-row{
+  display:flex;align-items:center;gap:8px;padding:9px;
+  border:1px solid rgba(255,255,255,.7);border-radius:10px;background:rgba(255,255,255,.32);
+}
+.repeat-row input,.repeat-row select{
+  flex:1;padding:9px 10px;color:#264b58;border:1px solid rgba(160,192,195,.5);
+  border-radius:8px;outline:0;background:rgba(255,255,255,.7);font:13px 'DM Sans';
+}
+.repeat-row-remove{
+  width:32px;height:32px;flex:0 0 auto;border:0;border-radius:8px;
+  background:rgba(255,205,190,.5);color:#a8544a;cursor:pointer;font-size:16px;line-height:1;
+}
+.repeat-row-move{
+  width:28px;height:28px;flex:0 0 auto;border:0;border-radius:7px;
+  background:rgba(255,255,255,.5);color:#527582;cursor:pointer;font-size:12px;
+}
+.repeat-add-btn{align-self:flex-start;margin-top:4px}
+
+/* ---------------------------------------------------------------
+   Carousel image manager (homepage only)
+--------------------------------------------------------------- */
+.carousel-manager-item{
+  display:flex;align-items:center;gap:12px;padding:10px;
+  border:1px solid rgba(255,255,255,.7);border-radius:11px;background:rgba(255,255,255,.32);
+}
+.carousel-manager-thumb{
+  width:64px;height:40px;flex:0 0 auto;border-radius:7px;object-fit:cover;
+  background:rgba(200,220,220,.5);
+}
+.carousel-manager-alt{flex:1;font-size:12px;color:#3f6068}
+
+/* ---------------------------------------------------------------
+   Image-row tool (custom Editor.js block)
+--------------------------------------------------------------- */
+.image-row-tool{display:flex;flex-wrap:wrap;gap:10px;padding:6px 0}
+.image-row-item{
+  position:relative;width:150px;padding:8px;border:1px solid rgba(160,192,195,.4);
+  border-radius:10px;background:rgba(255,255,255,.5);
+}
+.image-row-item img{width:100%;height:90px;object-fit:cover;border-radius:7px;display:block}
+.image-row-item input{
+  width:100%;margin-top:6px;padding:6px 7px;font-size:11px;
+  border:1px solid rgba(160,192,195,.5);border-radius:6px;outline:0;
+}
+.image-row-item-remove{
+  position:absolute;top:4px;right:4px;width:22px;height:22px;border:0;border-radius:50%;
+  background:rgba(255,255,255,.85);color:#a8544a;cursor:pointer;font-size:13px;line-height:1;
+}
+.image-row-add{
+  width:150px;height:126px;display:grid;place-items:center;border:1.5px dashed rgba(160,192,195,.6);
+  border-radius:10px;background:transparent;color:#7a969c;cursor:pointer;font-size:12px;
+}
+.image-row-progress{font-size:11px;color:#7a969c;margin-top:4px}
+
+/* ---------------------------------------------------------------
+   Invalid-block marker (admin.js: savePageContent()/saveNewsEntry()).
+   Editor.js silently drops any block whose own validate() rejects it —
+   this flags the exact block on screen instead of leaving the admin to
+   hunt for it after a text-only error. Same coral-red error tone as
+   .form-message.is-error / .image-row-item-remove elsewhere in this file.
+--------------------------------------------------------------- */
+.ce-block--invalid .ce-block__content{
+  outline:2px solid #b66e68;
+  outline-offset:4px;
+  border-radius:8px;
+  background:rgba(255,205,190,.18);
+  transition:outline-color .2s ease, background-color .2s ease;
+}
+
+/* ---------------------------------------------------------------
+   Embed tool / Add Link tool (custom Editor.js blocks)
+--------------------------------------------------------------- */
+.embed-tool,.add-link-tool{
+  padding:12px;border:1px solid rgba(160,192,195,.4);border-radius:10px;background:rgba(255,255,255,.4);
+}
+.embed-tool input,.add-link-tool input{
+  width:100%;margin-top:6px;padding:9px 10px;font-size:13px;
+  border:1px solid rgba(160,192,195,.5);border-radius:8px;outline:0;
+}
+.embed-tool-error{margin-top:6px;color:#b66e68;font-size:11px}
+.add-link-icon-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.add-link-icon-btn{
+  width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(160,192,195,.4);
+  border-radius:8px;background:rgba(255,255,255,.5);color:#4f8390;cursor:pointer;
+}
+.add-link-icon-btn svg{width:18px;height:18px}
+.add-link-icon-btn.is-selected{background:#1d4a59;color:#fff;border-color:#1d4a59}
+.add-link-preview{
+  display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 10px;
+  border-radius:8px;background:rgba(255,255,255,.5);font-size:12px;color:#3a5a63;
+}
+.add-link-preview svg{width:16px;height:16px}
+
+@media(max-width:760px){
+  .admin-two-col{grid-template-columns:1fr}
+  .admin-shell{width:calc(100% - 32px)}
+}

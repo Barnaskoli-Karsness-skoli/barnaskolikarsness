@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#eaf5f7">
+
+  <title>Póst-IT | Stjórnun beiðna</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    [hidden] {
+      display: none !important;
+    }
+
+    .admin-page {
+      min-height: 100vh;
+    }
+
+    .admin-page-shell {
+      width: min(1120px, calc(100% - 56px));
+      margin: 0 auto;
+      padding: 38px 0 70px;
+    }
+
+    .admin-intro {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    .admin-intro-copy {
+      max-width: 620px;
+    }
+
+    .admin-intro h1 {
+      margin: 17px 0 15px;
+      color: #183847;
+      font: 700 clamp(42px, 5vw, 66px) / .98 "Space Grotesk", sans-serif;
+      letter-spacing: -.065em;
+    }
+
+    .admin-intro h1 em {
+      color: #60838c;
+      font-style: normal;
+    }
+
+    .admin-intro p {
+      max-width: 520px;
+      margin: 0;
+      color: #66808b;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .admin-page-actions {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .admin-secondary-button,
+    .admin-primary-button {
+      border-radius: 10px;
+      cursor: pointer;
+      font: 700 11px "DM Sans", sans-serif;
+      letter-spacing: .04em;
+    }
+
+    .admin-secondary-button {
+      padding: 10px 13px;
+      color: #527582;
+      border: 1px solid rgba(110, 157, 165, .35);
+      background: rgba(255, 255, 255, .35);
+    }
+
+    .admin-primary-button {
+      padding: 11px 14px;
+      color: #fff;
+      border: 0;
+      background: #1d4a59;
+    }
+
+    .admin-secondary-button:hover {
+      background: rgba(255, 255, 255, .7);
+    }
+
+    .admin-primary-button:hover {
+      background: #163e4c;
+    }
+
+    .admin-secondary-button:disabled,
+    .admin-primary-button:disabled {
+      cursor: wait;
+      opacity: .55;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 13px;
+      margin-top: 38px;
+    }
+
+    .summary-card {
+      padding: 19px;
+      border: 1px solid rgba(255, 255, 255, .75);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, .3);
+      box-shadow: 0 18px 42px rgba(75, 122, 133, .09);
+      backdrop-filter: blur(16px);
+    }
+
+    .summary-card small {
+      display: block;
+      color: #789399;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-top: 8px;
+      color: #244b58;
+      font: 600 30px "Space Grotesk", sans-serif;
+      letter-spacing: -.05em;
+    }
+
+    .summary-card.is-new strong {
+      color: #497d83;
+    }
+
+    .summary-card.is-progress strong {
+      color: #4c80a2;
+    }
+
+    .summary-card.is-escalated strong {
+      color: #b07157;
+    }
+
+    .dashboard-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 28px;
+      padding: 15px 0;
+      border-top: 1px solid rgba(116, 158, 163, .24);
+      border-bottom: 1px solid rgba(116, 158, 163, .24);
+    }
+
+    .dashboard-toolbar strong {
+      color: #315763;
+      font: 600 19px "Space Grotesk", sans-serif;
+      letter-spacing: -.04em;
+    }
+
+    .dashboard-toolbar span {
+      color: #79959b;
+      font-size: 11px;
+    }
+
+    .dashboard-toolbar .admin-secondary-button {
+      margin-left: auto;
+    }
+
+    .ticket-table-wrap {
+      margin-top: 13px;
+      overflow-x: auto;
+      border: 1px solid rgba(255, 255, 255, .72);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, .27);
+      box-shadow: 0 22px 55px rgba(75, 122, 133, .12);
+      backdrop-filter: blur(17px);
+    }
+
+    .ticket-table {
+      width: 100%;
+      min-width: 920px;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .ticket-table th {
+      padding: 13px 14px;
+      color: #7b969b;
+      border-bottom: 1px solid rgba(116, 158, 163, .22);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .ticket-table td {
+      padding: 14px;
+      color: #315865;
+      border-bottom: 1px solid rgba(116, 158, 163, .14);
+      font-size: 12px;
+      vertical-align: middle;
+    }
+
+    .ticket-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .ticket-table td strong,
+    .ticket-table td small {
+      display: block;
+    }
+
+    .ticket-table td small {
+      margin-top: 4px;
+      color: #7a969c;
+      font-size: 10px;
+    }
+
+    .ticket-description {
+      min-width: 250px;
+      max-width: 390px;
+      color: #607d85 !important;
+      line-height: 1.45;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .status-select {
+      min-width: 114px;
+      padding: 7px 8px;
+      color: #426a74;
+      border: 1px solid rgba(130, 174, 179, .45);
+      border-radius: 7px;
+      outline: 0;
+      background: rgba(255, 255, 255, .55);
+      font: 11px "DM Sans", sans-serif;
+    }
+
+    .row-actions {
+      min-width: 135px;
+    }
+
+    .row-save-button,
+    .row-complete-button {
+      padding: 7px 9px;
+      margin: 2px 3px 2px 0;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .42);
+      cursor: pointer;
+      font: 700 10px "DM Sans", sans-serif;
+    }
+
+    .row-save-button {
+      color: #477b79;
+      border: 1px solid rgba(110, 157, 165, .35);
+    }
+
+    .row-complete-button {
+      color: #9c665e;
+      border: 1px solid rgba(176, 119, 108, .28);
+    }
+
+    .row-save-button:disabled,
+    .row-complete-button:disabled {
+      cursor: wait;
+      opacity: .5;
+    }
+
+    .dashboard-empty {
+      margin: 0;
+      padding: 35px;
+      color: #789399;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .admin-error {
+      margin-top: 15px;
+      padding: 13px 15px;
+      color: #985952;
+      border: 1px solid rgba(182, 110, 104, .25);
+      border-radius: 10px;
+      background: rgba(255, 235, 232, .48);
+      font-size: 12px;
+    }
+
+    .settings-card {
+      max-width: 650px;
+      margin-top: 24px;
+      padding: 23px;
+      border: 1px solid rgba(255, 255, 255, .72);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, .28);
+      box-shadow: 0 18px 42px rgba(75, 122, 133, .09);
+      backdrop-filter: blur(17px);
+    }
+
+    .settings-card h2 {
+      margin: 0;
+      color: #315763;
+      font: 600 21px "Space Grotesk", sans-serif;
+      letter-spacing: -.04em;
+    }
+
+    .settings-card p {
+      margin: 7px 0 0;
+      color: #789399;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .settings-card label {
+      display: block;
+      margin-top: 17px;
+      color: #5d7b84;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .settings-card input {
+      width: 100%;
+      margin-top: 7px;
+      padding: 11px 12px;
+      color: #264b58;
+      border: 1px solid rgba(160, 192, 195, .55);
+      border-radius: 9px;
+      outline: 0;
+      background: rgba(255, 255, 255, .5);
+      font: 13px "DM Sans", sans-serif;
+    }
+
+    .settings-actions {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-top: 14px;
+    }
+
+    .settings-message {
+      min-height: 18px;
+      flex: 1;
+      margin: 0;
+      color: #789399;
+      font-size: 11px;
+    }
+
+    .settings-message.is-success {
+      color: #4e8a70;
+    }
+
+    .settings-message.is-error {
+      color: #b66e68;
+    }
+
+    .login-dialog {
+      width: min(410px, calc(100% - 32px));
+      padding: 28px;
+      color: #173044;
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 20px;
+      background: rgba(239, 249, 248, .95);
+      box-shadow: 0 28px 80px rgba(43, 83, 94, .3);
+      backdrop-filter: blur(22px);
+    }
+
+    .login-dialog::backdrop {
+      background: rgba(34, 61, 69, .34);
+      backdrop-filter: blur(5px);
+    }
+
+    .login-kicker {
+      color: #64838c;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .login-dialog h2 {
+      margin: 10px 0 8px;
+      color: #183847;
+      font: 600 30px "Space Grotesk", sans-serif;
+      letter-spacing: -.055em;
+    }
+
+    .login-dialog p {
+      color: #6e8990;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .login-dialog label {
+      display: block;
+      margin-top: 18px;
+      color: #5d7b84;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .login-dialog input {
+      display: block;
+      width: 100%;
+      margin-top: 7px;
+      padding: 12px;
+      color: #264b58;
+      border: 1px solid rgba(160, 192, 195, .55);
+      border-radius: 9px;
+      outline: 0;
+      background: rgba(255, 255, 255, .62);
+      font: 14px "DM Sans", sans-serif;
+    }
+
+    .login-submit {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 19px;
+      padding: 13px 14px;
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      background: #1d4a59;
+      cursor: pointer;
+      font: 700 12px "DM Sans", sans-serif;
+    }
+
+    .login-submit:disabled {
+      cursor: wait;
+      opacity: .6;
+    }
+
+    .login-error {
+      min-height: 18px;
+      margin: 11px 0 0 !important;
+      color: #b66e68 !important;
+    }
+
+    @media (max-width: 850px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .admin-intro {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .admin-page-shell,
+      .site-header {
+        width: calc(100% - 32px);
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dashboard-toolbar {
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .dashboard-toolbar .admin-secondary-button {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+
+<body class="ticket-page admin-page">
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Póst-IT home">
+      <span class="brand-mark">P</span>
+      <span>
+        <strong>Póst-IT</strong>
+        <small>Stjórnun beiðna</small>
+      </span>
+    </a>
+
+    <nav class="ticket-nav">
+      <a class="back-link" href="index.html">← Til baka</a>
+      <button class="logout-button" id="logoutButton" type="button" hidden>
+        Skrá út
+      </button>
+    </nav>
+  </header>
+
+  <main class="admin-page-shell" id="dashboard" hidden>
+    <section class="admin-intro">
+      <div class="admin-intro-copy">
+        <div class="eyebrow">
+          <span class="status-dot"></span>
+          <span>Öruggt vinnusvæði</span>
+        </div>
+
+        <h1>
+          Stjórnun<br>
+          <em>IT beiðna.</em>
+        </h1>
+
+        <p>
+          Skoðaðu nýjar beiðnir, færðu mál áfram og lokaðu þeim þegar
+          vinnu er lokið.
+        </p>
+      </div>
+
+      <div class="admin-page-actions">
+        <button class="admin-secondary-button" id="openDisplayButton" type="button">
+          Opna skjáborð
+        </button>
+
+        <button class="admin-secondary-button" id="refreshButton" type="button">
+          ↻ Endurhlaða
+        </button>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="Ticket summary">
+      <article class="summary-card">
+        <small>Allar virkar</small>
+        <strong id="totalCount">0</strong>
+      </article>
+
+      <article class="summary-card is-new">
+        <small>Nýjar</small>
+        <strong id="newCount">0</strong>
+      </article>
+
+      <article class="summary-card is-progress">
+        <small>Í vinnslu</small>
+        <strong id="progressCount">0</strong>
+      </article>
+
+      <article class="summary-card is-escalated">
+        <small>Bráð / hækkað</small>
+        <strong id="escalatedCount">0</strong>
+      </article>
+    </section>
+
+    <div class="dashboard-toolbar">
+      <strong>Virkar beiðnir</strong>
+      <span id="queueSummary">Hleð beiðnum...</span>
+
+      <button class="admin-secondary-button" id="toolbarRefreshButton" type="button">
+        ↻ Uppfæra
+      </button>
+    </div>
+
+    <p class="admin-error" id="dashboardError" hidden></p>
+
+    <div class="ticket-table-wrap">
+      <table class="ticket-table">
+        <thead>
+          <tr>
+            <th>Beiðni</th>
+            <th>Stofa / búnaður</th>
+            <th>Lýsing</th>
+            <th>Staða</th>
+            <th>Aðgerðir</th>
+          </tr>
+        </thead>
+        <tbody id="ticketRows"></tbody>
+      </table>
+
+      <p class="dashboard-empty" id="emptyMessage" hidden>
+        Engar virkar beiðnir fundust.
+      </p>
+    </div>
+
+    <section class="settings-card">
+      <h2>Kerfisstillingar</h2>
+      <p>
+        Netfangið hér fyrir neðan fær tilkynningar frá Póst-IT.
+      </p>
+
+      <form id="settingsForm">
+        <label>
+          Tilkynninganetfang
+          <input
+            id="notificationEmail"
+            name="AdminNotificationEmail"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder="nafn@kopskolar.is"
+          >
+        </label>
+
+        <div class="settings-actions">
+          <p class="settings-message" id="settingsMessage" role="status"></p>
+
+          <button class="admin-primary-button" id="saveSettingsButton" type="submit">
+            Vista
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <dialog class="login-dialog" id="loginDialog">
+    <form id="loginForm">
+      <div class="login-kicker">EINKASVÆÐI</div>
+
+      <h2>Innskráning stjórnanda</h2>
+
+      <p>
+        Sláðu inn lykilorðið sem er vistað í Settings-flipanum í
+        Póst-IT Google-skjalinu.
+      </p>
+
+      <label>
+        Lykilorð
+        <input
+          id="passwordInput"
+          type="password"
+          autocomplete="current-password"
+          required
+          autofocus
+        >
+      </label>
+
+      <button class="login-submit" id="loginButton" type="submit">
+        <span>Opna vinnusvæði</span>
+        <span>↗</span>
+      </button>
+
+      <p class="login-error" id="loginError" role="alert"></p>
+    </form>
+  </dialog>
+
+  <script>
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbzlH_TqkyG8Z1NUb4Qv9hN-UYlEUbi7DlmZbIj_pFxUTGjgYh35qosSNIV77IqWDNlnuA/exec";
+
+    const SESSION_PASSWORD_KEY = "postItAdminPass";
+    const SESSION_ACTIVE_KEY = "postItAdminSession";
+
+    const dashboard = document.getElementById("dashboard");
+    const loginDialog = document.getElementById("loginDialog");
+    const loginForm = document.getElementById("loginForm");
+    const passwordInput = document.getElementById("passwordInput");
+    const loginButton = document.getElementById("loginButton");
+    const loginError = document.getElementById("loginError");
+    const logoutButton = document.getElementById("logoutButton");
+
+    const refreshButton = document.getElementById("refreshButton");
+    const toolbarRefreshButton = document.getElementById("toolbarRefreshButton");
+    const openDisplayButton = document.getElementById("openDisplayButton");
+
+    const ticketRows = document.getElementById("ticketRows");
+    const emptyMessage = document.getElementById("emptyMessage");
+    const queueSummary = document.getElementById("queueSummary");
+    const dashboardError = document.getElementById("dashboardError");
+
+    const totalCount = document.getElementById("totalCount");
+    const newCount = document.getElementById("newCount");
+    const progressCount = document.getElementById("progressCount");
+    const escalatedCount = document.getElementById("escalatedCount");
+
+    const settingsForm = document.getElementById("settingsForm");
+    const notificationEmail = document.getElementById("notificationEmail");
+    const settingsMessage = document.getElementById("settingsMessage");
+    const saveSettingsButton = document.getElementById("saveSettingsButton");
+
+    let tickets = [];
+    let loadingTickets = false;
+
+    function getStoredPassword() {
+      try {
+        return sessionStorage.getItem(SESSION_PASSWORD_KEY) || "";
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function saveSession(password) {
+      try {
+        sessionStorage.setItem(SESSION_PASSWORD_KEY, password);
+        sessionStorage.setItem(SESSION_ACTIVE_KEY, "active");
+      } catch (error) {
+        // Continue without persistent session storage.
+      }
+    }
+
+    function clearSession() {
+      try {
+        sessionStorage.removeItem(SESSION_PASSWORD_KEY);
+        sessionStorage.removeItem(SESSION_ACTIVE_KEY);
+      } catch (error) {
+        // Continue even if session storage is unavailable.
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(
+        /[&<>"']/g,
+        character => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        })[character]
+      );
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.valueOf())) {
+        return String(value);
+      }
+
+      return date.toLocaleString("is-IS", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function normalizeStatus(status) {
+      const value = String(status || "New").trim().toLowerCase();
+
+      if (value === "in progress") return "In Progress";
+      if (value === "escalated") return "Escalated";
+      if (value === "complete") return "Complete";
+      if (value === "closed") return "Complete";
+      if (value === "resolved") return "Complete";
+
+      return "New";
+    }
+
+    function statusOptions(currentStatus) {
+      const current = normalizeStatus(currentStatus);
+      const statuses = [
+        ["New", "Ný"],
+        ["In Progress", "Í vinnslu"],
+        ["Escalated", "Bráð / hækkað"],
+        ["Complete", "Lokið"]
+      ];
+
+      return statuses
+        .map(([value, label]) => {
+          const selected = value === current ? " selected" : "";
+          return `<option value="${value}"${selected}>${label}</option>`;
+        })
+        .join("");
+    }
+
+    async function postToApi(action, payload = {}) {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          action,
+          pass: getStoredPassword(),
+          ...payload
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned HTTP ${response.status}.`);
+      }
+
+      const result = await response.json();
+
+      if (result.status === "busy") {
+        throw new Error("Kerfið er upptekið. Reyndu aftur eftir augnablik.");
+      }
+
+      if (result.ok !== true && result.result !== "success") {
+        throw new Error(result.error || "Beiðnin mistókst.");
+      }
+
+      return result;
+    }
+
+    async function verifyPassword(password) {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        redirect: "follow",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          action: "verifyPassword",
+          password
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned HTTP ${response.status}.`);
+      }
+
+      return response.json();
+    }
+
+    async function validateStoredSession() {
+      const storedPassword = getStoredPassword();
+
+      if (!storedPassword) return false;
+
+      try {
+        const result = await verifyPassword(storedPassword);
+        return result.ok === true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function showLogin(message = "") {
+      dashboard.hidden = true;
+      logoutButton.hidden = true;
+      loginError.textContent = message;
+
+      if (!loginDialog.open) {
+        loginDialog.showModal();
+      }
+
+      setTimeout(() => passwordInput.focus(), 50);
+    }
+
+    async function openDashboard() {
+      if (loginDialog.open) {
+        loginDialog.close();
+      }
+
+      dashboard.hidden = false;
+      logoutButton.hidden = false;
+
+      await Promise.all([
+        loadTickets(),
+        loadSettings()
+      ]);
+    }
+
+    function updateSummary() {
+      const statusCounts = tickets.reduce(
+        (counts, ticket) => {
+          const status = normalizeStatus(ticket.Status || ticket.status);
+          counts.total += 1;
+
+          if (status === "New") counts.new += 1;
+          if (status === "In Progress") counts.progress += 1;
+          if (status === "Escalated") counts.escalated += 1;
+
+          return counts;
+        },
+        {
+          total: 0,
+          new: 0,
+          progress: 0,
+          escalated: 0
+        }
+      );
+
+      totalCount.textContent = String(statusCounts.total);
+      newCount.textContent = String(statusCounts.new);
+      progressCount.textContent = String(statusCounts.progress);
+      escalatedCount.textContent = String(statusCounts.escalated);
+
+      queueSummary.textContent =
+        statusCounts.total === 1
+          ? "1 virk beiðni"
+          : `${statusCounts.total} virkar beiðnir`;
+    }
+
+    function renderTickets() {
+      updateSummary();
+
+      emptyMessage.hidden = tickets.length !== 0;
+
+      ticketRows.innerHTML = tickets
+        .map((ticket, index) => {
+          const ticketId =
+            ticket.TicketID ||
+            ticket.ticketId ||
+            "—";
+
+          const timestamp =
+            ticket.Timestamp ||
+            ticket.timestamp ||
+            "";
+
+          const room =
+            ticket.Room ||
+            ticket.room ||
+            "—";
+
+          const category =
+            ticket.Category ||
+            ticket.category ||
+            "—";
+
+          const symptom =
+            ticket.Symptom ||
+            ticket.symptom ||
+            "—";
+
+          const userType =
+            ticket.UserType ||
+            ticket.userType ||
+            "";
+
+          const status =
+            ticket.Status ||
+            ticket.status ||
+            "New";
+
+          return `
+            <tr data-index="${index}">
+              <td>
+                <strong>${escapeHtml(ticketId)}</strong>
+                <small>${escapeHtml(formatDate(timestamp))}</small>
+              </td>
+
+              <td>
+                <strong>${escapeHtml(room)}</strong>
+                <small>
+                  ${escapeHtml(category)}
+                  ${userType ? ` · ${escapeHtml(userType)}` : ""}
+                </small>
+              </td>
+
+              <td class="ticket-description">
+                ${escapeHtml(symptom)}
+              </td>
+
+              <td>
+                <select
+                  class="status-select"
+                  aria-label="Staða beiðni ${escapeHtml(ticketId)}"
+                >
+                  ${statusOptions(status)}
+                </select>
+              </td>
+
+              <td class="row-actions">
+                <button class="row-save-button" type="button">
+                  Vista
+                </button>
+
+                <button class="row-complete-button" type="button">
+                  Ljúka
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    async function loadTickets() {
+      if (loadingTickets) return;
+
+      loadingTickets = true;
+      dashboardError.hidden = true;
+      queueSummary.textContent = "Hleð beiðnum...";
+      refreshButton.disabled = true;
+      toolbarRefreshButton.disabled = true;
+
+      try {
+        const password = encodeURIComponent(getStoredPassword());
+
+        const response = await fetch(
+          `${API_URL}?action=getTickets&pass=${password}&_=${Date.now()}`,
+          {
+            method: "GET",
+            cache: "no-store"
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Server returned HTTP ${response.status}.`);
+        }
+
+        const result = await response.json();
+
+        if (result.ok === false) {
+          if (result.error === "Unauthorized.") {
+            clearSession();
+            showLogin("Innskráning rann út. Skráðu þig inn aftur.");
+            return;
+          }
+
+          throw new Error(result.error || "Ekki tókst að sækja beiðnir.");
+        }
+
+        tickets = Array.isArray(result)
+          ? result
+          : (result.tickets || result.data || result.rows || []);
+
+        renderTickets();
+      } catch (error) {
+        tickets = [];
+        renderTickets();
+
+        dashboardError.textContent =
+          error.message || "Ekki tókst að sækja beiðnir.";
+
+        dashboardError.hidden = false;
+      } finally {
+        loadingTickets = false;
+        refreshButton.disabled = false;
+        toolbarRefreshButton.disabled = false;
+      }
+    }
+
+    async function loadSettings() {
+      settingsMessage.textContent = "";
+
+      try {
+        const password = encodeURIComponent(getStoredPassword());
+
+        const response = await fetch(
+          `${API_URL}?action=getSettings&pass=${password}&_=${Date.now()}`,
+          {
+            method: "GET",
+            cache: "no-store"
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Server returned HTTP ${response.status}.`);
+        }
+
+        const result = await response.json();
+
+        if (result.ok === false) {
+          throw new Error(result.error || "Ekki tókst að sækja stillingar.");
+        }
+
+        notificationEmail.value =
+          result.AdminNotificationEmail || "";
+      } catch (error) {
+        settingsMessage.textContent =
+          error.message || "Ekki tókst að sækja stillingar.";
+
+        settingsMessage.className =
+          "settings-message is-error";
+      }
+    }
+
+    loginForm.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      loginButton.disabled = true;
+      loginError.textContent = "Staðfesti lykilorð...";
+
+      try {
+        const password = passwordInput.value;
+        const result = await verifyPassword(password);
+
+        if (result.ok !== true) {
+          throw new Error("Rangt lykilorð.");
+        }
+
+        saveSession(password);
+        passwordInput.value = "";
+        loginError.textContent = "";
+
+        await openDashboard();
+      } catch (error) {
+        loginError.textContent =
+          error.message || "Innskráning mistókst.";
+      } finally {
+        loginButton.disabled = false;
+      }
+    });
+
+    logoutButton.addEventListener("click", () => {
+      clearSession();
+      tickets = [];
+      ticketRows.innerHTML = "";
+      showLogin("Þú hefur skráð þig út.");
+    });
+
+    refreshButton.addEventListener("click", loadTickets);
+    toolbarRefreshButton.addEventListener("click", loadTickets);
+
+    openDisplayButton.addEventListener("click", () => {
+      window.location.href = "tickets_2.html";
+    });
+
+    ticketRows.addEventListener("click", async event => {
+      const button = event.target.closest("button");
+
+      if (!button) return;
+
+      const row = button.closest("tr");
+
+      if (!row) return;
+
+      const index = Number(row.dataset.index);
+      const ticket = tickets[index];
+
+      if (!ticket) return;
+
+      const ticketId =
+        ticket.TicketID ||
+        ticket.ticketId;
+
+      if (!ticketId) {
+        dashboardError.textContent =
+          "Beiðnin er ekki með TicketID.";
+
+        dashboardError.hidden = false;
+        return;
+      }
+
+      const rowButtons = row.querySelectorAll("button");
+      rowButtons.forEach(item => {
+        item.disabled = true;
+      });
+
+      dashboardError.hidden = true;
+
+      try {
+        if (button.classList.contains("row-complete-button")) {
+          await postToApi("clearTicket", {
+            ticketId
+          });
+        } else {
+          const status =
+            row.querySelector(".status-select").value;
+
+          await postToApi("updateTicket", {
+            ticketId,
+            status
+          });
+        }
+
+        await loadTickets();
+      } catch (error) {
+        dashboardError.textContent =
+          error.message || "Ekki tókst að uppfæra beiðnina.";
+
+        dashboardError.hidden = false;
+      } finally {
+        rowButtons.forEach(item => {
+          item.disabled = false;
+        });
+      }
+    });
+
+    settingsForm.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      saveSettingsButton.disabled = true;
+      settingsMessage.className = "settings-message";
+      settingsMessage.textContent = "Vista stillingar...";
+
+      try {
+        await postToApi("saveSettings", {
+          settings: {
+            AdminNotificationEmail:
+              notificationEmail.value.trim()
+          }
+        });
+
+        settingsMessage.textContent = "Stillingar vistaðar.";
+        settingsMessage.className =
+          "settings-message is-success";
+      } catch (error) {
+        settingsMessage.textContent =
+          error.message || "Ekki tókst að vista stillingar.";
+
+        settingsMessage.className =
+          "settings-message is-error";
+      } finally {
+        saveSettingsButton.disabled = false;
+      }
+    });
+
+    loginDialog.addEventListener("cancel", event => {
+      event.preventDefault();
+    });
+
+    (async function initialiseAdmin() {
+      const validSession = await validateStoredSession();
+
+      if (validSession) {
+        await openDashboard();
+      } else {
+        clearSession();
+        showLogin();
+      }
+    })();
+  </script>
+</body>
+</html>

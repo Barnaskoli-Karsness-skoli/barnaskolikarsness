@@ -1,0 +1,358 @@
+/**
+ * site.js
+ * Renders the shared header, quick-contact bar, mobile nav, page content,
+ * and footer into the placeholder elements every page includes
+ * (#quick-contact, #site-header, #main-content .page-content, #site-footer).
+ * One render path per page-load == one place to change the chrome for all
+ * 22 pages. Reads data from SiteData.load() (see site-data.js), which now
+ * fetches get-page-data.js for real (Phase 6). After rendering, dispatches
+ * a "sitedata:ready" CustomEvent carrying the full fetched payload so
+ * page-specific scripts (e.g. homepage.js) can react to it without a
+ * second fetch. Session cache follows CLAUDE.md's "cache settings in
+ * sessionStorage once per session" rule.
+ */
+(function () {
+  "use strict";
+
+  // Bump this whenever the shape of SiteData changes (e.g. adding real
+  // hrefs to nav categories, or quickLinks) so stale sessionStorage entries
+  // from a previous version are ignored instead of served as-is.
+  var CACHE_KEY = "bk-site-data-v2";
+
+  function getCachedData() {
+    try {
+      var raw = sessionStorage.getItem(CACHE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setCachedData(data) {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    } catch (e) {
+      /* sessionStorage unavailable (private mode etc.) — safe to skip */
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+    });
+  }
+
+  function renderQuickContact(settings) {
+    var mount = document.getElementById("quick-contact");
+    if (!mount) return;
+
+    var items = [];
+    settings.phoneNumbers.forEach(function (p) {
+      items.push(
+        '<a class="quick-contact-item" href="tel:' + escapeHtml(p.tel) + '">' +
+          "<strong>" + escapeHtml(p.label) + ":</strong> " + escapeHtml(p.number) +
+        "</a>"
+      );
+    });
+    items.push(
+      '<a class="quick-contact-item" href="mailto:' + escapeHtml(settings.officeEmail) + '">' +
+        escapeHtml(settings.officeEmail) +
+      "</a>"
+    );
+    items.push(
+      '<a class="quick-contact-item" href="' + escapeHtml(settings.address.mapUrl) + '" target="_blank" rel="noopener">' +
+        escapeHtml(settings.address.text) +
+      "</a>"
+    );
+
+    mount.innerHTML =
+      '<div class="quick-contact-inner">' + items.join("") + "</div>";
+  }
+
+  function renderDesktopNav(nav) {
+    // Every top-level label is now a real landing page link (category pages
+    // exist for Leikskólastig/Grunnskólastig/Frístund/Foreldraráð, same as
+    // Forsíða for the homepage). The dropdown is revealed by :hover / CSS
+    // :focus-within only — no click handler needed on desktop.
+    return nav.map(function (item) {
+      var hasChildren = item.children && item.children.length;
+      var dropdown = "";
+      if (hasChildren) {
+        dropdown =
+          '<div class="nav-dropdown" role="menu">' +
+          item.children.map(function (child) {
+            var extra = child.external ? ' target="_blank" rel="noopener"' : "";
+            return '<a role="menuitem" href="' + escapeHtml(child.href) + '"' + extra + ">" + escapeHtml(child.label) + "</a>";
+          }).join("") +
+          "</div>";
+      }
+      return (
+        '<div class="nav-item" data-nav-key="' + item.key + '">' +
+          '<a class="nav-toplink" href="' + escapeHtml(item.href) + '"' +
+            (hasChildren ? ' aria-haspopup="true"' : "") +
+          ">" + escapeHtml(item.label) +
+          (hasChildren ? ' <span class="nav-caret" aria-hidden="true">▾</span>' : "") +
+          "</a>" +
+          dropdown +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function renderMobileNav(nav) {
+    // The label is always a real link to the category's landing page; a
+    // separate caret button expands/collapses the subpage list, so tapping
+    // the label navigates and tapping the caret does not.
+    return nav.map(function (item) {
+      var hasChildren = item.children && item.children.length;
+      if (!hasChildren) {
+        return (
+          '<div class="mobile-nav-group">' +
+            '<a class="mobile-nav-link" href="' + escapeHtml(item.href) + '">' + escapeHtml(item.label) + "</a>" +
+          "</div>"
+        );
+      }
+      return (
+        '<div class="mobile-nav-group" data-nav-key="' + item.key + '">' +
+          '<div class="mobile-nav-group-row">' +
+            '<a class="mobile-nav-link" href="' + escapeHtml(item.href) + '">' + escapeHtml(item.label) + "</a>" +
+            '<button type="button" class="mobile-nav-caret-btn" aria-expanded="false" aria-label="Sýna undirsíður fyrir ' + escapeHtml(item.label) + '">' +
+              '<span class="nav-caret" aria-hidden="true">▾</span>' +
+            "</button>" +
+          "</div>" +
+          '<div class="mobile-nav-sublist">' +
+            item.children.map(function (child) {
+              var extra = child.external ? ' target="_blank" rel="noopener"' : "";
+              return '<a href="' + escapeHtml(child.href) + '"' + extra + ">" + escapeHtml(child.label) + "</a>";
+            }).join("") +
+          "</div>" +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function renderBadges(settings, cssClass) {
+    return settings.externalBadges.map(function (b) {
+      return '<a class="badge-link ' + cssClass + '" href="' + escapeHtml(b.href) + '" target="_blank" rel="noopener">' + escapeHtml(b.label) + "</a>";
+    }).join("");
+  }
+
+  function renderHeader(data) {
+    var mount = document.getElementById("site-header");
+    if (!mount) return;
+
+    var settings = data.settings;
+
+    mount.innerHTML =
+      '<div class="site-header-inner">' +
+        '<a class="brand" href="/index.html" aria-label="' + escapeHtml(settings.schoolName) + ' — Forsíða">' +
+          '<span class="brand-logo-slot" aria-hidden="true"></span>' +
+          '<span class="brand-text"><strong>' + escapeHtml(settings.schoolName) + "</strong><small>Kópavogur</small></span>" +
+        "</a>" +
+        '<nav class="main-nav" aria-label="Aðalvalmynd">' + renderDesktopNav(data.nav) + "</nav>" +
+        '<div class="header-badges">' + renderBadges(settings, "badge-desktop") + "</div>" +
+        '<button type="button" class="hamburger-toggle" aria-label="Opna valmynd" aria-expanded="false" aria-controls="mobile-nav">' +
+          "<span></span>" +
+        "</button>" +
+      "</div>" +
+      '<div class="mobile-nav" id="mobile-nav">' +
+        '<div class="mobile-nav-panel">' +
+          '<div class="mobile-nav-head">' +
+            '<strong>' + escapeHtml(settings.schoolName) + "</strong>" +
+            '<button type="button" class="mobile-nav-close" aria-label="Loka valmynd">×</button>' +
+          "</div>" +
+          renderMobileNav(data.nav) +
+          '<div class="mobile-nav-badges">' + renderBadges(settings, "badge-mobile") + "</div>" +
+        "</div>" +
+      "</div>";
+
+    wireHeaderInteractions(mount);
+  }
+
+  function wireHeaderInteractions(mount) {
+    // Desktop dropdowns are pure CSS: revealed on :hover and on
+    // :focus-within (keyboard tab), no click handler needed since the label
+    // itself is a real link to the category's landing page.
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeMobileNav();
+      }
+    });
+
+    // Hamburger + mobile panel
+    var hamburger = mount.querySelector(".hamburger-toggle");
+    var mobileNav = mount.querySelector("#mobile-nav");
+    var closeBtn = mount.querySelector(".mobile-nav-close");
+
+    function openMobileNav() {
+      mobileNav.classList.add("is-open");
+      hamburger.classList.add("is-active");
+      hamburger.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+    }
+    function closeMobileNav() {
+      mobileNav.classList.remove("is-open");
+      hamburger.classList.remove("is-active");
+      hamburger.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    }
+
+    hamburger.addEventListener("click", function () {
+      if (mobileNav.classList.contains("is-open")) closeMobileNav();
+      else openMobileNav();
+    });
+    closeBtn.addEventListener("click", closeMobileNav);
+    mobileNav.addEventListener("click", function (e) {
+      if (e.target === mobileNav) closeMobileNav();
+    });
+
+    // Mobile accordion groups — the caret button toggles the sublist only;
+    // the label next to it is a plain link and navigates as normal.
+    mobileNav.querySelectorAll(".mobile-nav-caret-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var group = btn.closest(".mobile-nav-group");
+        var isOpen = group.classList.contains("is-open");
+        mobileNav.querySelectorAll(".mobile-nav-group").forEach(function (g) {
+          g.classList.remove("is-open");
+          var b = g.querySelector(".mobile-nav-caret-btn");
+          if (b) b.setAttribute("aria-expanded", "false");
+        });
+        if (!isOpen) {
+          group.classList.add("is-open");
+          btn.setAttribute("aria-expanded", "true");
+        }
+      });
+    });
+
+    // Close mobile nav automatically once viewport grows past the breakpoint
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 900) closeMobileNav();
+    });
+  }
+
+  function renderQuickLinks(data) {
+    // Every page ships the #quick-links mount point (empty by default).
+    // It only fills when site-wide quickLinks.enabled is true, or the mount
+    // is explicitly force-shown (the homepage marks its mount this way, per
+    // CLAUDE.md Section 5b) — so turning it on elsewhere is a settings
+    // change, not a template edit.
+    var mount = document.getElementById("quick-links");
+    if (!mount) return;
+
+    var quickLinks = data.settings.quickLinks;
+    if (!quickLinks || !quickLinks.items || !quickLinks.items.length) return;
+
+    var forceShow = mount.hasAttribute("data-force-show");
+    if (!forceShow && !quickLinks.enabled) return;
+
+    var icons = window.QuickLinkIcons;
+    mount.innerHTML =
+      '<div class="quick-links-row">' +
+      quickLinks.items.map(function (item) {
+        var svg = icons ? icons.get(item.icon) : "";
+        return (
+          '<a class="quick-link-item" href="' + escapeHtml(item.url) + '">' +
+            '<span class="quick-link-icon" aria-hidden="true">' + svg + "</span>" +
+            '<span class="quick-link-label">' + escapeHtml(item.label) + "</span>" +
+          "</a>"
+        );
+      }).join("") +
+      "</div>";
+  }
+
+  function renderBackButton() {
+    var mount = document.getElementById("back-nav");
+    if (!mount) return;
+    mount.innerHTML =
+      '<a href="/index.html" class="back-button" id="back-button-link">' +
+        '<span aria-hidden="true">←</span> Til baka' +
+      "</a>";
+    document.getElementById("back-button-link").addEventListener("click", function (e) {
+      if (window.history.length > 1) {
+        e.preventDefault();
+        window.history.back();
+      }
+    });
+  }
+
+  function renderFooter(data) {
+    var mount = document.getElementById("site-footer");
+    if (!mount) return;
+    var s = data.settings;
+
+    var phoneLines = s.phoneNumbers.map(function (p) {
+      return '<a href="tel:' + escapeHtml(p.tel) + '">' + escapeHtml(p.label) + ": " + escapeHtml(p.number) + "</a>";
+    }).join("");
+
+    var hoursLines = s.officeHours.map(function (h) {
+      return "<p>" + escapeHtml(h.days) + ": " + escapeHtml(h.hours) + "</p>";
+    }).join("");
+
+    mount.innerHTML =
+      '<div class="site-footer-inner">' +
+        '<div class="footer-col">' +
+          '<div class="footer-brand"><span class="brand-logo-slot" aria-hidden="true" style="width:36px;height:36px;font-size:14px"></span><strong>' + escapeHtml(s.schoolName) + "</strong></div>" +
+          "<p>" + escapeHtml(s.address.text) + "</p>" +
+          '<a href="' + escapeHtml(s.address.mapUrl) + '" target="_blank" rel="noopener">Skoða á korti</a>' +
+        "</div>" +
+        '<div class="footer-col">' +
+          "<h3>Hafa samband</h3>" +
+          phoneLines +
+          '<a href="mailto:' + escapeHtml(s.officeEmail) + '">' + escapeHtml(s.officeEmail) + "</a>" +
+        "</div>" +
+        '<div class="footer-col">' +
+          "<h3>Opnunartími</h3>" +
+          hoursLines +
+          "<p style=\"margin-top:12px\">Skólastjóri: " + escapeHtml(s.principalName) + "</p>" +
+        "</div>" +
+      "</div>" +
+      '<div class="footer-bottom">' +
+        "<span>&copy; " + new Date().getFullYear() + " " + escapeHtml(s.schoolName) + "</span>" +
+        '<a href="#" onclick="return false" tabindex="-1" aria-hidden="true"></a>' +
+      "</div>";
+  }
+
+  function renderPageContent(data) {
+    // Leaves the hand-authored placeholder markup in .page-content alone
+    // whenever there's no real content yet (page not seeded) — see
+    // js/render-content.js's renderContentInto for the "not seeded" contract.
+    var container = document.querySelector("#main-content .page-content");
+    if (!container || !window.RenderContent) return;
+    if (data.page && data.page.content) {
+      window.RenderContent.renderContentInto(container, data.page.content);
+    }
+  }
+
+  function init() {
+    var cached = getCachedData();
+    var renderAll = function (data) {
+      renderQuickContact(data.settings);
+      renderHeader(data);
+      renderBackButton();
+      renderQuickLinks(data);
+      renderPageContent(data);
+      renderFooter(data);
+      // Lets page-specific scripts (e.g. homepage.js's news grid) react to
+      // the same fetched data without re-fetching or re-reading sessionStorage
+      // themselves.
+      window.dispatchEvent(new CustomEvent("sitedata:ready", { detail: data }));
+    };
+
+    if (cached) {
+      renderAll(cached);
+      return;
+    }
+
+    window.SiteData.load().then(function (data) {
+      setCachedData(data);
+      renderAll(data);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#eaf5f7">
+<title>Stjórnborð | Barnaskóli Kársness</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="admin/css/admin.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <!--
+    Real Netlify Identity gate (Phase 8) — see admin/js/admin.js's
+    initLoginGate(). Clicking "Skrá inn" opens Identity's own hosted
+    login/invite-acceptance modal (netlifyIdentity.open()); this card is
+    just the surrounding prompt. The @kopskolar.is domain check happens
+    twice: here client-side (belt) right after login, and — the actual
+    security boundary — server-side in every save Function via
+    netlify/functions/utils/auth.js (suspenders).
+  -->
+  <div class="admin-login-screen" id="admin-login-screen">
+    <div class="admin-login-card glass-panel">
+      <span class="dialog-kicker">STJÓRNBORÐ</span>
+      <h1>Innskráning</h1>
+      <p>Skráðu þig inn með Netlify Identity aðgangi þínum (@kopskolar.is) til að breyta síðum skólans.</p>
+      <button type="button" class="submit-button" id="admin-login-btn" style="width:100%;justify-content:center">Skrá inn</button>
+      <p class="admin-login-note" id="admin-login-error" hidden></p>
+    </div>
+  </div>
+
+  <div class="admin-shell" id="admin-dashboard" hidden>
+    <div class="admin-heading">
+      <div>
+        <div class="page-eyebrow"><span class="status-dot"></span>Barnaskóli Kársness</div>
+        <h1>Stjórnborð</h1>
+        <p>Breyttu síðum, fréttum, borða og grunnupplýsingum skólans.</p>
+      </div>
+      <div class="admin-actions">
+        <span id="admin-current-user" style="color:#5d7b84;font-size:11px;font-weight:700;margin-right:4px"></span>
+        <button type="button" class="secondary-button danger-button" id="admin-logout-btn">Skrá út</button>
+      </div>
+    </div>
+
+    <nav class="admin-tabs">
+      <button type="button" class="admin-tab-btn is-active" data-tab="pages">Síður</button>
+      <button type="button" class="admin-tab-btn" data-tab="news">Fréttir</button>
+      <button type="button" class="admin-tab-btn" data-tab="banner">Borði</button>
+      <button type="button" class="admin-tab-btn" data-tab="site-info">Upplýsingar um skóla</button>
+    </nav>
+
+    <!-- ============ PAGES ============ -->
+    <section class="admin-panel is-active" id="panel-pages">
+      <div class="editor-toolbar">
+        <label for="page-select">Síða</label>
+        <select id="page-select" class="page-select"></select>
+        <button type="button" class="submit-button" id="page-save-btn">Vista síðu</button>
+      </div>
+      <p class="form-message" id="page-message"></p>
+
+      <div class="editor-wrap">
+        <div id="editor-holder"></div>
+      </div>
+
+      <div id="carousel-manager-section" class="glass-panel" style="margin-top:22px" hidden>
+        <h2 style="margin:0 0 6px;font:600 18px 'Space Grotesk'">Myndasyrpa á forsíðu</h2>
+        <p style="margin:0 0 14px;color:#6e8990;font-size:12px">Bættu við, fjarlægðu eða endurraðaðu myndum í myndasyrpu forsíðunnar.</p>
+        <div class="repeat-list" id="carousel-manager-list"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button type="button" class="secondary-button" id="carousel-manager-add-btn">+ Bæta við mynd</button>
+          <button type="button" class="submit-button" id="carousel-manager-save-btn">Vista myndaruna</button>
+        </div>
+        <p class="form-message" id="carousel-manager-message"></p>
+      </div>
+    </section>
+
+    <!-- ============ NEWS ============ -->
+    <section class="admin-panel" id="panel-news">
+      <div class="glass-panel">
+        <h2 style="margin:0 0 10px;font:600 18px 'Space Grotesk'">Allar fréttir</h2>
+        <div id="news-recent-list"></div>
+      </div>
+
+      <div class="glass-panel" style="margin-top:16px">
+        <h2 style="margin:0 0 10px;font:600 18px 'Space Grotesk'">Hlaða inn frétt með auðkenni</h2>
+        <div class="editor-toolbar">
+          <input type="text" id="news-lookup-id" placeholder="t.d. haustfagnadur-2026" style="min-width:260px;padding:11px 13px;border:1px solid rgba(160,192,195,.55);border-radius:10px;background:rgba(255,255,255,.6)">
+          <button type="button" class="secondary-button" id="news-load-btn">Sækja frétt</button>
+        </div>
+      </div>
+
+      <div class="glass-panel" style="margin-top:16px">
+        <h2 style="margin:0 0 14px;font:600 18px 'Space Grotesk'">Ný / breytt frétt</h2>
+        <div class="admin-two-col">
+          <label class="admin-field"><span>Titill</span><input type="text" id="news-title"></label>
+          <label class="admin-field"><span>Dagsetning</span><input type="date" id="news-date"></label>
+        </div>
+        <label class="admin-field"><span>Auðkenni (slóð)</span><input type="text" id="news-id" placeholder="myndast sjálfkrafa af titli"></label>
+
+        <div style="margin-top:16px">
+          <span style="display:block;margin-bottom:6px;color:#5d7b84;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">Forsíðumynd (valfrjálst)</span>
+          <div class="repeat-list" id="news-cover-manager"></div>
+          <button type="button" class="secondary-button repeat-add-btn" id="news-cover-add-btn">+ Bæta við forsíðumynd</button>
+          <p class="form-message" id="news-cover-message"></p>
+        </div>
+
+        <div class="editor-wrap" style="margin-top:16px">
+          <div id="news-editor-holder"></div>
+        </div>
+
+        <div style="margin-top:14px">
+          <button type="button" class="submit-button" id="news-save-btn">Vista frétt</button>
+        </div>
+        <p class="form-message" id="news-message"></p>
+      </div>
+    </section>
+
+    <!-- ============ BANNER ============ -->
+    <section class="admin-panel" id="panel-banner">
+      <div class="glass-panel">
+        <h2 style="margin:0 0 14px;font:600 18px 'Space Grotesk'">Neyðarborði</h2>
+        <div class="admin-checkbox-field">
+          <input type="checkbox" id="banner-active">
+          <span>Borði virkur (sýnilegur gestum)</span>
+        </div>
+        <label class="admin-field"><span>Texti borða</span><textarea id="banner-text" rows="3" placeholder="t.d. Skólinn er lokaður í dag vegna veðurs"></textarea></label>
+        <label class="admin-field"><span>Mynd (valfrjálst — vefslóð)</span><input type="url" id="banner-image-url" placeholder="https://..."></label>
+        <div style="margin-top:14px">
+          <button type="button" class="submit-button" id="banner-save-btn">Vista borða</button>
+        </div>
+        <p class="form-message" id="banner-message"></p>
+      </div>
+    </section>
+
+    <!-- ============ SITE INFO ============ -->
+    <section class="admin-panel" id="panel-site-info">
+      <div class="glass-panel">
+        <h2 style="margin:0 0 14px;font:600 18px 'Space Grotesk'">Skólastjóri og skrifstofa</h2>
+        <div class="admin-two-col">
+          <label class="admin-field"><span>Nafn skólastjóra</span><input type="text" id="principal-name"></label>
+          <label class="admin-field"><span>Netfang skólastjóra</span><input type="email" id="principal-email"></label>
+        </div>
+        <label class="admin-field"><span>Netfang skrifstofu</span><input type="email" id="office-email"></label>
+      </div>
+
+      <div class="glass-panel" style="margin-top:16px">
+        <h2 style="margin:0 0 6px;font:600 18px 'Space Grotesk'">Símanúmer</h2>
+        <div class="repeat-list" id="phone-rows"></div>
+        <button type="button" class="secondary-button repeat-add-btn" id="phone-add-btn">+ Bæta við símanúmeri</button>
+      </div>
+
+      <div class="glass-panel" style="margin-top:16px">
+        <h2 style="margin:0 0 14px;font:600 18px 'Space Grotesk'">Heimilisfang</h2>
+        <label class="admin-field"><span>Heimilisfang</span><input type="text" id="address-text"></label>
+        <label class="admin-field"><span>Vefslóð á kort</span><input type="url" id="address-map-url"></label>
+      </div>
+
+      <div class="glass-panel" style="margin-top:16px">
+        <h2 style="margin:0 0 6px;font:600 18px 'Space Grotesk'">Opnunartími</h2>
+        <div class="repeat-list" id="hours-rows"></div>
+        <button type="button" class="secondary-button repeat-add-btn" id="hours-add-btn">+ Bæta við opnunartíma</button>
+      </div>
+
+      <div class="glass-panel" style="margin-top:16px">
+        <h2 style="margin:0 0 6px;font:600 18px 'Space Grotesk'">Flýtileiðir (Quick Links)</h2>
+        <div class="admin-checkbox-field">
+          <input type="checkbox" id="quicklinks-enabled">
+          <span>Sýna flýtileiðir á öllum síðum (forsíða sýnir þær alltaf óháð þessu)</span>
+        </div>
+        <div class="repeat-list" id="quicklink-rows" style="margin-top:12px"></div>
+        <button type="button" class="secondary-button repeat-add-btn" id="quicklink-add-btn">+ Bæta við flýtileið</button>
+      </div>
+
+      <div style="margin-top:18px">
+        <button type="button" class="submit-button" id="site-info-save-btn">Vista upplýsingar</button>
+      </div>
+      <p class="form-message" id="site-info-message"></p>
+    </section>
+  </div>
+
+  <!-- Netlify Identity — vendored locally (Phase 8), same no-CDN-at-runtime
+       pattern as Editor.js/DOMPurify. The widget's login/invite UI itself
+       still talks to this site's own /.netlify/identity endpoint at
+       runtime — that's Identity's actual auth backend, not a third-party
+       CDN dependency. -->
+  <script src="admin/vendor/netlify-identity/netlify-identity-widget.js"></script>
+
+  <!-- Public shared data + icon sets (reused so admin and public pages agree) -->
+  <script src="js/site-data.js"></script>
+  <script src="js/resource-icons.js"></script>
+
+  <!-- Editor.js — vendored locally, admin-only, never loaded by public pages -->
+  <script src="admin/vendor/editorjs/editorjs.umd.js"></script>
+  <script src="admin/vendor/editorjs/header.umd.js"></script>
+  <script src="admin/vendor/editorjs/list.umd.js"></script>
+  <script src="admin/js/image-compress.js"></script>
+  <script src="admin/js/admin-api.js"></script>
+  <script src="admin/vendor/editorjs/tools/image-row-tool.js"></script>
+  <script src="admin/vendor/editorjs/tools/embed-tool.js"></script>
+  <script src="admin/vendor/editorjs/tools/add-link-tool.js"></script>
+  <script src="admin/js/editor-setup.js"></script>
+  <script src="admin/js/admin.js"></script>
+</body>
+</html>

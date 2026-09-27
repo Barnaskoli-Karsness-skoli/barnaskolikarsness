@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#eaf5f7">
+<title>Barnaskóli Kársness — Heimasíða</title>
+<meta name="description" content="Heimasíða Barnaskóla Kársness í Kópavogi — fréttir, upplýsingar og hagnýtar leiðbeiningar fyrir nemendur og foreldra.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Fara í meginefni</a>
+
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <!-- Frozen quick-contact strip — rendered by js/site.js from site-settings -->
+  <div id="quick-contact" class="quick-contact-bar"></div>
+
+  <!-- Header + nav — rendered by js/site.js from js/site-data.js (nav config) -->
+  <header id="site-header"></header>
+
+  <!-- No back button on the homepage — it's the back-button's own fallback destination -->
+
+  <!--
+    Fixed homepage sequence (CLAUDE.md Section 13):
+    1. Intro text + school photo, side-by-side
+    2. Quick Links row — always on for the homepage (data-force-show)
+    3. Image carousel
+    4. Card grid of the 6 newest news entries
+    5. Pagination for older news
+  -->
+  <main class="page-shell" id="main-content" data-page-key="homepage">
+    <div class="page-hero home-hero">
+      <div class="page-eyebrow"><span class="status-dot"></span>Velkomin á heimasíðu skólans</div>
+      <h1>Barnaskóli Kársness</h1>
+      <p class="home-hero-copy">
+        <!-- Motto/core values placeholder — reserved slot, text not yet decided (CLAUDE.md CONTENT GAPS) -->
+        Hlýlegur og metnaðarfullur skóli í hjarta Kópavogs.
+      </p>
+    </div>
+
+    <!-- 1. Intro text + photo — same Editor.js instance as every other page's .page-content -->
+    <article class="page-content">
+      <div class="intro-grid">
+        <div>
+          <h2>Velkomin í skólann okkar</h2>
+          <p>
+            Barnaskóli Kársness er skóli fyrir leikskóla- og grunnskólabörn í Kópavogi, þar
+            sem lögð er áhersla á öruggt og styðjandi námsumhverfi, gleði í leik og starfi,
+            og náið samstarf við heimilin.
+          </p>
+          <p>
+            Hér á síðunni má finna nýjustu fréttir, hagnýtar upplýsingar fyrir hvert
+            skólastig og leiðir til að hafa samband við skólann.
+          </p>
+        </div>
+        <div class="intro-media" role="img" aria-label="Ljósmynd af skólanum — birtist þegar skólinn hefur valið mynd">
+          Ljósmynd fylgir síðar
+        </div>
+      </div>
+    </article>
+
+    <!-- 2. Quick Links (Section 5b) — homepage always shows this, regardless of the site-wide toggle -->
+    <div id="quick-links" data-force-show></div>
+
+    <!-- 3. Image carousel — interaction ported from /Postit files/Pic_carousel.txt, restyled dots.
+         Static placeholder slides for now; Phase 7 replaces with the admin's image list. -->
+    <section class="carousel" id="home-carousel" aria-label="Myndasyrpa úr skólastarfinu">
+      <div class="carousel-track">
+        <div class="carousel-slide">Mynd 1 — kemur síðar</div>
+        <div class="carousel-slide">Mynd 2 — kemur síðar</div>
+        <div class="carousel-slide">Mynd 3 — kemur síðar</div>
+        <div class="carousel-slide">Mynd 4 — kemur síðar</div>
+      </div>
+      <div class="carousel-dots"></div>
+    </section>
+
+    <!-- 4 + 5. News grid (6 newest) + pagination — mock data from js/news-data.js,
+         swapped for the real news Blob fetch in Phase 5/6. -->
+    <section class="news-section" aria-label="Fréttir">
+      <div class="news-section-head">
+        <h2>Fréttir</h2>
+      </div>
+      <div class="news-grid" id="news-grid"></div>
+      <nav class="news-pagination" id="news-pagination" aria-label="Síður frétta"></nav>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/site-data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/resource-icons.js"></script>
+  <script src="js/vendor/dompurify.min.js"></script>
+  <script src="js/render-content.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/news-data.js"></script>
+  <script src="js/homepage.js"></script>
+</body>
+</html>

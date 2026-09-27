@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#eaf5f7">
+  <title>Póst-IT | Staff support portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Póst-IT home"><span class="brand-mark">P</span><span><strong>Póst-IT</strong><small data-i18n="brandSubtitle">Skólaþjónusta</small></span></a>
+    <label class="language-picker" aria-label="Language"><span class="globe" aria-hidden="true">◎</span><select id="languageSelect"><option value="is">IS</option><option value="en">EN</option><option value="pl">PL</option><option value="pt">PT</option></select></label>
+  </header>
+
+  <main class="manifest-shell" id="manifestView" hidden></main>
+
+  <main class="page-shell" id="mainShell">
+    <section class="hero" aria-labelledby="pageTitle"><div class="eyebrow"><span class="status-dot"></span><span data-i18n="eyebrow">Stuðningur fyrir skóladaginn</span></div><h1 id="pageTitle" data-i18n="title">Hvað getum við<br><em>leyst saman?</em></h1><p class="hero-copy" data-i18n="intro">Veldu það sem þú þarft. Skýr beiðni í dag skilar hraðari lausn á morgun.</p><div class="hero-meta"><span class="line"></span><span data-i18n="meta">Póst-IT þjónustuborð · Kópavogur</span></div></section>
+    <!-- Primary Cards: IT Problem, A/V Booking, New Staff, Guides -->
+        <section class="service-grid" aria-label="Support services">
+          <button class="service-card card-coral" data-modal="ticketModal">
+            <div class="card-top"><span class="card-number">01</span><span class="arrow" aria-hidden="true">↗</span></div>
+            <div class="service-icon icon-coral" aria-hidden="true">!</div>
+            <div class="card-content">
+              <h2 data-i18n="problemTitle">IT vandamál</h2>
+              <p data-i18n="problemText">Láttu okkur vita þegar eitthvað bilar eða hagar sér undarlega.</p>
+              <span class="card-link" data-i18n="startRequest">Senda inn beiðni</span>
+            </div>
+          </button>
+
+          <button class="service-card card-blue" data-modal="bookingModal">
+            <div class="card-top"><span class="card-number">02</span><span class="arrow" aria-hidden="true">↗</span></div>
+            <div class="service-icon icon-blue" aria-hidden="true">◒</div>
+            <div class="card-content">
+              <h2 data-i18n="avTitle">A/V viðburður</h2>
+              <p data-i18n="avText">Bókaðu tæki og tækniaðstoð fyrir fundi, sýningar og viðburði.</p>
+              <span class="card-link" data-i18n="bookNow">Bóka núna</span>
+            </div>
+          </button>
+
+          <button class="service-card card-lime" data-modal="onboardingModal">
+            <div class="card-top"><span class="card-number">03</span><span class="arrow" aria-hidden="true">↗</span></div>
+            <div class="service-icon icon-lime" aria-hidden="true">+</div>
+            <div class="card-content">
+              <h2 data-i18n="onboardingTitle">Nýr starfsmaður</h2>
+              <p data-i18n="onboardingText">Skráðu þarfir fyrir nýja samstarfsfélaga til að tryggja góða byrjun.</p>
+              <span class="card-link" data-i18n="startOnboarding">Hefja skráningu</span>
+            </div>
+          </button>
+
+          <button class="service-card card-violet" data-modal="guideModal">
+            <div class="card-top"><span class="card-number">04</span><span class="arrow" aria-hidden="true">↗</span></div>
+            <div class="service-icon icon-violet" aria-hidden="true">?</div>
+            <div class="card-content">
+              <h2 data-i18n="guidesTitle">Leiðbeiningar</h2>
+              <p data-i18n="guidesText">Stuttar leiðbeiningar fyrir AirPlay, Teams, skjái og algeng verkefni.</p>
+              <span class="card-link" data-i18n="openLibrary">Opna safnið</span>
+            </div>
+          </button>
+        </section>
+    
+        <section class="footer-note">
+          <span class="footer-spark">✦</span>
+          <span data-i18n="footer">Einföld tækni. Betri skóladagur.</span>
+          <span class="footer-rule"></span>
+          <a href="tickets.html" class="admin-access-link">Admin</a>
+          <span class="footer-year">2024—25</span>
+        </section>
+      </main>
+
+      <!-- MODALS -->
+
+      <!-- IT Ticket Modal -->
+      <dialog id="ticketModal" class="admin-dialog quick-dialog">
+        <div class="modal-head">
+          <div>
+            <span class="dialog-kicker">01 / INTAKE</span>
+            <h2 data-i18n="newRequest">Ný IT beiðni</h2>
+          </div>
+          <button class="close-button" data-close-dialog>×</button>
+        </div>
+        <form id="ticketForm" class="intake-form">
+          <div class="form-grid">
+            <label><span data-i18n="userType">Hlutverk</span><select name="userType" required><option value="" disabled selected data-i18n="selectUserType">Veldu notendategund</option><option value="Student" data-i18n="student">Student</option><option value="Staff" data-i18n="staff">Staff</option></select></label>
+            <label><span data-i18n="roomNumber">Stofa / Rými</span><input name="room" list="roomOptions" required placeholder="Veldu stofu" data-i18n-placeholder="selectRoom"></label>
+            <label><span data-i18n="assetCategory">Búnaður</span><select name="category" required><option value="" disabled selected data-i18n="selectAsset">Veldu búnað</option><option value="Projector" data-i18n="projector">Projector</option><option value="Apple TV" data-i18n="appleTv">Apple TV</option><option value="iPad" data-i18n="ipad">iPad</option><option value="Laptop" data-i18n="laptop">Laptop</option><option value="Docking Screen" data-i18n="dockingScreen">Docking Screen</option><option value="Phone" data-i18n="phone">Phone</option><option value="Wi-Fi" data-i18n="wifi">Wi-Fi</option></select></label>
+          </div>
+          <label><span data-i18n="symptom">Lýsing á vanda</span><textarea name="symptom" rows="4" required placeholder="Lýstu vandanum í stuttu máli…"></textarea></label>
+          <div class="form-actions">
+            <p class="form-message" id="ticketMessage"></p>
+            <button class="submit-button" type="submit"><span data-i18n="submitTicket">Senda beiðni</span><span>↗</span></button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- A/V Booking Modal -->
+      <dialog id="bookingModal" class="admin-dialog quick-dialog" style="width: min(800px, 95vw);">
+        <div class="modal-head">
+          <div>
+            <span class="dialog-kicker">02 / BOOKING</span>
+            <h2 data-i18n="avTitle">A/V viðburður</h2>
+          </div>
+          <button class="close-button" data-close-dialog>×</button>
+        </div>
+        <form id="bookingForm" class="booking-form">
+          <div class="booking-fields two-col">
+            <label><span data-i18n="requesterName">Nafn pöntunaraðila</span><input name="requesterName" required></label>
+            <label><span data-i18n="location">Staðsetning</span><input name="room" list="roomOptions" required></label>
+            <label><span data-i18n="startDate">Upphafsdagur</span><input name="startDate" type="date" required></label>
+            <label><span data-i18n="startTime">Upphafstími</span><input name="startTime" type="time" required></label>
+            <label><span data-i18n="endDate">Lokadagur</span><input name="endDate" type="date"></label>
+            <label><span data-i18n="endTime">Lokatími</span><input name="endTime" type="time"></label>
+            <label><span data-i18n="guestCount">Áætlaður fjöldi gesta</span><input name="personCount" type="number" min="1"></label>
+          </div>
+      
+          <label class="tech-toggle" style="display:flex; align-items:flex-start; gap:11px; margin: 15px 0;">
+            <input name="techSupportRequired" type="checkbox">
+            <span>
+              <strong data-i18n="techRequired">Þarf tæknimann á staðnum?</strong>
+              <small data-i18n="techSupportHelp">Veldu þetta ef tæknimaður þarf að vera viðstaddur uppsetningu eða viðburð.</small>
+            </span>
+          </label>
+
+          <div class="booking-section-head">
+            <strong data-i18n="equipmentHeading">Búnaður</strong>
+            <span data-i18n="maxLimitNote">Athugið: Formið staðfestir ekki framboð</span>
+          </div>
+      
+          <div id="bookingEquipmentGrid" class="catalog-grid">
+            <!-- Static Equipment Items injected by JS -->
+          </div>
+
+          <label><span data-i18n="notes">Aðrar athugasemdir</span><textarea name="notes" rows="2"></textarea></label>
+      
+          <div class="form-actions">
+            <p class="form-message" id="bookingMessage"></p>
+            <button class="submit-button" type="submit"><span data-i18n="bookNow">Senda bókunarbeiðni</span><span>↗</span></button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- New Staff Onboarding Modal -->
+      <dialog id="onboardingModal" class="admin-dialog quick-dialog">
+        <div class="modal-head">
+          <div>
+            <span class="dialog-kicker">03 / ONBOARDING</span>
+            <h2 data-i18n="onboardingTitle">Nýr starfsmaður</h2>
+          </div>
+          <button class="close-button" data-close-dialog>×</button>
+        </div>
+        <form id="onboardingForm" class="intake-form">
+          <label><span>Nafn nýs starfsmanns</span><input name="staffName" required></label>
+          <div class="form-grid">
+            <label><span>Starfshlutverk</span><input name="role" required></label>
+            <label><span>Deild / Fag</span><input name="department" required></label>
+          </div>
+          <label><span>Tækjabúnaður (Tölva, iPad, o.fl)</span><textarea name="equipment" rows="2" required></textarea></label>
+          <div class="form-actions">
+            <p class="form-message" id="onboardingMessage"></p>
+            <button class="submit-button" type="submit"><span>Senda skráningu</span><span>↗</span></button>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Guides Modal -->
+      <dialog id="guideModal" class="admin-dialog quick-dialog" style="width: min(1000px, 95vw); height: 80vh;">
+        <div class="modal-head">
+          <div>
+            <span class="dialog-kicker">04 / KNOWLEDGE</span>
+            <h2 data-i18n="guidesTitle">Leiðbeiningar</h2>
+          </div>
+          <button class="close-button" data-close-dialog>×</button>
+        </div>
+        <div id="guideIframeContainer" style="height: calc(100% - 80px); margin-top: 20px;">
+          <p class="loading-state">Hleð leiðbeiningum...</p>
+        </div>
+      </dialog>
+
+      <datalist id="roomOptions"></datalist>
+
+      <script src="app.js"></script>
+      <script>
+        // 1. Static Configuration
+        const EQUIPMENT_LIST = [
+          { id: 'mic_hand', name: 'Handmíkrófónn', max: 6, icon: '🎤', description: 'Tráðlaus hljóðnemi fyrir ræðuhöld.' },
+          { id: 'mic_head', name: 'Höfuðmíkrófónn', max: 4, icon: '🎧', description: 'Fyrir hendur frjálsar við kynningar.' },
+          { id: 'speaker', name: 'Færanlegur hátalari', max: 2, icon: '🔊', description: 'Bluetooth hátalari á hleðslurafhlöðu.' },
+          { id: 'projector', name: 'Færanlegur skjávarpi', max: 2, icon: '📽️', description: 'HDMI skjávarpi með tösku.' },
+          { id: 'screen', name: 'Sýningartjald', max: 1, icon: '🖼️', description: 'Færanlegt tjald á þrífæti.' },
+          { id: 'clicker', name: 'Glærufjarstýring', max: 5, icon: '🖱️', description: 'Logitech glærusmelli.' }
+        ];
+
+        const GUIDE_SOURCE_URL = "https://docs.google.com/presentation/d/e/2PACX-1vT1i8_i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i1i/embed";
+
+        // Helper functions for dates & manifest rendering
+        function dateLabel(dateStr) {
+          if (!dateStr) return '';
+          const months = ['janúar','febrúar','mars','apríl','maí','júní','júlí','ágúst','september','október','nóvember','desember'];
+          const val = new Date(`${dateStr}T12:00:00`);
+          return isNaN(val.getTime()) ? dateStr : `${val.getDate()}. ${months[val.getMonth()]} ${val.getFullYear()}`;
+        }
+
+        function renderManifest(payload) {
+          const bookingModal = document.getElementById('bookingModal');
+          if (bookingModal) bookingModal.close();
+
+          const mainShell = document.getElementById('mainShell');
+          const manifestView = document.getElementById('manifestView');
+
+          if (mainShell) mainShell.hidden = true;
+
+          const items = (payload.requestedItems || []).map(item => `<li><span>${item.name}</span><strong>${item.qty} stk.</strong></li>`).join('');
+          const timeRange = [
+            payload.startDate ? `${dateLabel(payload.startDate)} ${payload.startTime || ''}`.trim() : '',
+            payload.endDate ? `${dateLabel(payload.endDate)} ${payload.endTime || ''}`.trim() : ''
+          ].filter(Boolean).join(' – ');
+
+          manifestView.innerHTML = `
+            <article class="manifest glass-panel">
+              <div class="manifest-head">
+                <div>
+                  <div class="eyebrow"><span class="status-dot"></span>STAÐFEST BÓKUN</div>
+                  <h1>Bókunarbeiðni Staftfest<br><em>— A/V Viðburður</em></h1>
+                </div>
+                <span class="manifest-mark">✓</span>
+              </div>
+              <div class="manifest-details">
+                <div><small>BÓKUNARNÚMER</small><strong>${payload.ticketId}</strong></div>
+                <div><small>PANTAÐ AF</small><strong>${payload.requesterName}</strong></div>
+                <div><small>STAÐSETNING & DAGSETNING</small><strong>${payload.room || '—'} | ${timeRange || '—'}</strong></div>
+                <div><small>ÁÆTLAÐUR FJÖLDI GESTA</small><strong>${payload.personCount ? payload.personCount + ' manns' : 'Ekki tilgreint'}</strong></div>
+                <div><small>TÆKNIAÐSTOÐ</small><strong>${payload.techSupportRequired ? 'Já, tæknimaður óskast viðstaddur' : 'Nei, umsjónaraðili sér um tæki sjálfur'}</strong></div>
+              </div>
+              <div class="manifest-items">
+                <h2>Pantaður búnaður</h2>
+                <ul>${items || '<li><span>Enginn búnaður valinn</span></li>'}</ul>
+              </div>
+              ${payload.notes ? `<div class="manifest-notes"><small>UPPSETNINGARATHUGASEMD</small><p>${payload.notes}</p></div>` : ''}
+              <div class="manifest-actions">
+                <button class="submit-button" type="button" onclick="window.print()"><span>Prenta / Sækja PDF</span><span>↓</span></button>
+                <button class="secondary-button" type="button" id="closeManifestBtn">Til baka í forsíðu</button>
+              </div>
+            </article>
+          `;
+
+          manifestView.hidden = false;
+
+          document.getElementById('closeManifestBtn').addEventListener('click', () => {
+            manifestView.hidden = true;
+            if (mainShell) mainShell.hidden = false;
+          });
+        }
+
+        // 2. State & UI Controls
+        document.querySelectorAll('[data-modal]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const modalId = btn.dataset.modal;
+            const modal = document.getElementById(modalId);
+            if (modal) {
+              modal.showModal();
+              if (modalId === 'guideModal') loadGuides();
+              if (modalId === 'bookingModal') renderBookingItems();
+            }
+          });
+        });
+
+        document.querySelectorAll('[data-close-dialog]').forEach(btn => {
+          btn.addEventListener('click', () => btn.closest('dialog').close());
+        });
+
+        // Handle Escape key for all dialogs
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') {
+            document.querySelectorAll('dialog[open]').forEach(d => d.close());
+          }
+        });
+
+        // 3. Render Booking Items
+        function renderBookingItems() {
+          const grid = document.getElementById('bookingEquipmentGrid');
+          if (!grid || grid.children.length > 0) return;
+      
+          grid.innerHTML = EQUIPMENT_LIST.map(item => `
+            <article class="gear-card">
+              <div class="gear-card-top">
+                <span class="gear-icon" style="font-size: 24px;">${item.icon}</span>
+                <span class="ownership">Hámark: ${item.max}</span>
+              </div>
+              <h3>${item.name}</h3>
+              <p>${item.description || ''}</p>
+              <div class="quantity-control">
+                <button type="button" onclick="const input = this.nextElementSibling; input.value = Math.max(0, parseInt(input.value) - 1)">−</button>
+                <input type="number" name="qty_${item.id}" value="0" min="0" max="${item.max}" readonly>
+                <button type="button" onclick="const input = this.previousElementSibling; if(parseInt(input.value) < ${item.max}) input.value = parseInt(input.value) + 1">+</button>
+              </div>
+            </article>
+          `).join('');
+        }
+
+        // 4. Lazy Load Guides
+        function loadGuides() {
+          const container = document.getElementById('guideIframeContainer');
+          if (container.querySelector('iframe')) return;
+          container.innerHTML = `<iframe src="${GUIDE_SOURCE_URL}" width="100%" height="100%" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>`;
+        }
+
+        // 5. Unified Submission
+        async function handleFormSubmit(formId, action, messageId) {
+          const form = document.getElementById(formId);
+          const message = document.getElementById(messageId);
+          const submitBtn = form.querySelector('button[type="submit"]');
+
+          form.addEventListener('submit', async e => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            message.className = 'form-message is-loading';
+            message.textContent = 'Sendi beiðni...';
+
+            const formData = new FormData(form);
+            const payload = {
+              action: action,
+              timestamp: new Date().toISOString(),
+              ticketId: `AV-${Date.now().toString(36).toUpperCase()}`
+            };
+        
+            formData.forEach((value, key) => {
+              if (key.startsWith('qty_')) {
+                if (!payload.requestedItems) payload.requestedItems = [];
+                const id = key.replace('qty_', '');
+                const item = EQUIPMENT_LIST.find(i => i.id === id);
+                if (parseInt(value) > 0) {
+                  payload.requestedItems.push({ name: item.name, qty: parseInt(value) });
+                }
+              } else if (key === 'techSupportRequired') {
+                payload.techSupportRequired = true;
+              } else {
+                payload[key] = value;
+              }
+            });
+
+            try {
+              const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+              });
+              const result = await response.json();
+              if (result.ok) {
+                message.className = 'form-message is-success';
+                message.textContent = `Tókst! Beiðni skráð: ${payload.ticketId}`;
+                
+                if (action === 'addAVBooking') {
+                  renderManifest(payload);
+                  form.reset();
+                } else {
+                  form.reset();
+                  setTimeout(() => form.closest('dialog').close(), 3000);
+                }
+              } else {
+                throw new Error(result.error || 'Villa kom upp');
+              }
+            } catch (err) {
+              message.className = 'form-message is-error';
+              message.textContent = err.message;
+            } finally {
+              submitBtn.disabled = false;
+            }
+          });
+        }
+
+        handleFormSubmit('ticketForm', 'addTicket', 'ticketMessage');
+        handleFormSubmit('bookingForm', 'addAVBooking', 'bookingMessage');
+        handleFormSubmit('onboardingForm', 'addOnboarding', 'onboardingMessage');
+
+        // Language & Room Sync (Keep public)
+        let currentLanguage = localStorage.getItem('postItLanguage') || 'is';
+        const select = document.getElementById('languageSelect');
+
+        function setLanguage(lang) {
+          currentLanguage = lang;
+          localStorage.setItem('postItLanguage', lang);
+          document.documentElement.lang = lang;
+          select.value = lang;
+          document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            if (APP_TRANSLATIONS[lang][key]) el.innerHTML = APP_TRANSLATIONS[lang][key];
+          });
+        }
+
+        select.addEventListener('change', e => setLanguage(e.target.value));
+        setLanguage(currentLanguage);
+
+      </script>
+    </body>
+    </html>

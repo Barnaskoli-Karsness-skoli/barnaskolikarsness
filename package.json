@@ -1,0 +1,22 @@
+{
+  "name": "barnaskoli-karsness-vefur",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Barnaskóli Kársness — static site + Netlify Functions backend (Netlify Blobs content store).",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "seed": "node scripts/seed-content.js"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  },
+  "devDependencies": {
+    "@editorjs/editorjs": "2.31.7",
+    "@editorjs/header": "2.8.9",
+    "@editorjs/list": "2.0.9",
+    "netlify-identity-widget": "2.0.3"
+  },
+  "_devDependenciesNote": "admin-only, never bundled into a Netlify Function — their browser bundle files are checked into admin/vendor/editorjs/ and admin/vendor/netlify-identity/ directly (see CLAUDE.md Phases 7-8) since this environment had no npm to install+copy them the normal way. Run `npm install` once Node is available so these are tracked properly, and re-copy the bundle files here on version bumps."
+}

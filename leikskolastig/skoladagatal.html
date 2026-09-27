@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#eaf5f7">
+<title>Skóladagatal — Leikskólastig | Barnaskóli Kársness</title>
+<meta name="description" content="Skóladagatal leikskólastigs Barnaskóla Kársness — skipulagsdagar, frídagar og mikilvægar dagsetningar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Fara í meginefni</a>
+
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <!-- Frozen quick-contact strip — rendered by js/site.js from site-settings -->
+  <div id="quick-contact" class="quick-contact-bar"></div>
+
+  <!-- Header + nav — rendered by js/site.js from js/site-data.js (nav config) -->
+  <header id="site-header"></header>
+
+  <!-- Back button — every non-homepage page gets one -->
+  <div class="back-nav" id="back-nav"></div>
+
+  <!--
+    Quick Links mount (Section 5b). Empty on every page by default; only
+    fills when site-settings.quickLinks.enabled is true. Force-shown here
+    with data-force-show purely to demo the module for review — remove
+    that attribute on real non-homepage pages (the homepage is the only
+    page that force-shows it by design).
+  -->
+  <div class="page-shell" id="quick-links" data-force-show style="padding-bottom:0"></div>
+
+  <!--
+    Page template contract for Phase 3 batch generation:
+    - data-page-key uniquely identifies this page's content Blob
+    - .page-content is the empty container the JSON-to-HTML renderer (Phase 6)
+      fills at runtime from Editor.js output; the markup below is placeholder
+      content standing in for that render until Phase 6/7 exist.
+  -->
+  <main class="page-shell" id="main-content" data-page-key="leikskolastig-skoladagatal">
+    <div class="page-hero">
+      <div class="page-eyebrow"><span class="status-dot"></span>Leikskólastig</div>
+      <h1>Skóladagatal</h1>
+    </div>
+
+    <article class="page-content">
+      <p>
+        Hér má finna skóladagatal leikskólastigs Barnaskóla Kársness fyrir yfirstandandi
+        skólaár, þar á meðal skipulagsdaga, frídaga og aðrar mikilvægar dagsetningar.
+      </p>
+
+      <h2>Skipulagsdagar</h2>
+      <p>
+        Skipulagsdagar eru nýttir til undirbúnings og fagþróunar starfsfólks. Leikskólinn
+        er lokaður þessa daga og foreldrar/forsjáraðilar eru upplýstir með góðum fyrirvara.
+      </p>
+      <ul>
+        <li>Dæmi um efnislið — skipulagsdagur (dagsetning fylgir þegar staðfest)</li>
+        <li>Dæmi um efnislið — skipulagsdagur (dagsetning fylgir þegar staðfest)</li>
+      </ul>
+
+      <h2>Frídagar og leyfi</h2>
+      <p>
+        Almennir frídagar fylgja skóladagatali Kópavogsbæjar. Sjá einnig
+        <a href="/leikskolastig/leyfistilkynning.html">Leyfistilkynningu</a> fyrir tilkynningar
+        um leyfi barns utan skipulagðra frídaga.
+      </p>
+
+      <h2>Tengd skjöl</h2>
+      <div class="linked-resources">
+        <a class="resource-card" href="#" onclick="return false">
+          <span class="resource-icon" aria-hidden="true">📅</span>
+          <span class="resource-label">Skóladagatal (PDF)</span>
+        </a>
+        <a class="resource-card" href="#" onclick="return false">
+          <span class="resource-icon" aria-hidden="true">📄</span>
+          <span class="resource-label">Nánari upplýsingar</span>
+        </a>
+      </div>
+    </article>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="../js/site-data.js"></script>
+  <script src="../js/icons.js"></script>
+  <script src="../js/resource-icons.js"></script>
+  <script src="../js/vendor/dompurify.min.js"></script>
+  <script src="../js/render-content.js"></script>
+  <script src="../js/site.js"></script>
+</body>
+</html>
