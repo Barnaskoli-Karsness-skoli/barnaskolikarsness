@@ -48,6 +48,22 @@
     });
   }
 
+  // Small inline contact icons (phone/mail) — same wrapper attrs as
+  // js/icons.js / js/resource-icons.js (viewBox 0 0 24 24, currentColor
+  // stroke, 1.5 stroke-width, round caps/joins) so these read as part of
+  // the same icon system rather than a one-off addition. Used only inline
+  // in front of phone numbers/email addresses in the quick-contact bar and
+  // the footer — not a new icon set/module, just two constants local to
+  // this file's own render functions.
+  var ICON_PHONE =
+    '<svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M6.5 4.5h3l1.6 3.8-2.1 1.6a10.8 10.8 0 0 0 5.1 5.1l1.6-2.1 3.8 1.6v3a1.5 1.5 0 0 1-1.6 1.5C9.9 18.6 5.4 14.1 5 8.6A1.5 1.5 0 0 1 6.5 4.5Z"/>' +
+    "</svg>";
+  var ICON_MAIL =
+    '<svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4.5 7l7.5 6 7.5-6"/>' +
+    "</svg>";
+
   function renderQuickContact(settings) {
     var mount = document.getElementById("quick-contact");
     if (!mount) return;
@@ -56,13 +72,13 @@
     settings.phoneNumbers.forEach(function (p) {
       items.push(
         '<a class="quick-contact-item" href="tel:' + escapeHtml(p.tel) + '">' +
-          "<strong>" + escapeHtml(p.label) + ":</strong> " + escapeHtml(p.number) +
+          ICON_PHONE + "<strong>" + escapeHtml(p.label) + ":</strong> " + escapeHtml(p.number) +
         "</a>"
       );
     });
     items.push(
       '<a class="quick-contact-item" href="mailto:' + escapeHtml(settings.officeEmail) + '">' +
-        escapeHtml(settings.officeEmail) +
+        ICON_MAIL + escapeHtml(settings.officeEmail) +
       "</a>"
     );
     items.push(
@@ -360,7 +376,7 @@
     var s = data.settings;
 
     var phoneLines = s.phoneNumbers.map(function (p) {
-      return '<a href="tel:' + escapeHtml(p.tel) + '">' + escapeHtml(p.label) + ": " + escapeHtml(p.number) + "</a>";
+      return '<a class="footer-contact-link" href="tel:' + escapeHtml(p.tel) + '">' + ICON_PHONE + escapeHtml(p.label) + ": " + escapeHtml(p.number) + "</a>";
     }).join("");
 
     var hoursLines = s.officeHours.map(function (h) {
@@ -371,7 +387,7 @@
     // this renders nothing (no stray <br> or empty mailto: link) unless a
     // real, non-whitespace value is actually set.
     var principalEmailLine = s.principalEmail && s.principalEmail.trim()
-      ? '<br><a href="mailto:' + escapeHtml(s.principalEmail) + '">' + escapeHtml(s.principalEmail) + "</a>"
+      ? '<br><a class="footer-contact-link" href="mailto:' + escapeHtml(s.principalEmail) + '">' + ICON_MAIL + escapeHtml(s.principalEmail) + "</a>"
       : "";
 
     mount.innerHTML =
@@ -384,7 +400,7 @@
         '<div class="footer-col">' +
           "<h3>Hafa samband</h3>" +
           phoneLines +
-          '<a href="mailto:' + escapeHtml(s.officeEmail) + '">' + escapeHtml(s.officeEmail) + "</a>" +
+          '<a class="footer-contact-link" href="mailto:' + escapeHtml(s.officeEmail) + '">' + ICON_MAIL + escapeHtml(s.officeEmail) + "</a>" +
         "</div>" +
         '<div class="footer-col">' +
           "<h3>Opnunartími</h3>" +
