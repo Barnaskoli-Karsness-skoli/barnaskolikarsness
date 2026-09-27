@@ -60,6 +60,71 @@ a{color:inherit}
 .skip-link:focus{top:12px}
 
 /* ---------------------------------------------------------------
+   Emergency banner (CLAUDE.md Section 8) — sits above the
+   quick-contact bar when active. Full-size band by default;
+   .is-shrunk swaps it to a small floating pill (shrink state is
+   sessionStorage-backed per-banner in js/site.js's renderBanner).
+   Amber-tinted glass panel — same blur/border/shadow language as the
+   rest of the ice-glass system, tinted to read as an alert.
+--------------------------------------------------------------- */
+.site-banner{display:none}
+.site-banner.is-visible{display:block}
+
+.site-banner-full{
+  width:100%;
+  background:rgba(255,196,120,.32);
+  border-bottom:1px solid rgba(255,255,255,.6);
+  backdrop-filter:blur(16px);
+}
+.site-banner.is-shrunk .site-banner-full{display:none}
+
+.site-banner-inner{
+  width:min(1120px,calc(100% - 56px));
+  margin:0 auto;
+  display:flex;align-items:center;gap:14px;
+  padding:12px 20px;
+}
+.site-banner-image{
+  width:44px;height:44px;flex:0 0 auto;
+  border-radius:10px;object-fit:cover;
+}
+.site-banner-text{
+  flex:1;margin:0;
+  color:#5c3a12;font:600 13px 'DM Sans';line-height:1.5;
+}
+.site-banner-shrink-btn{
+  flex:0 0 auto;width:30px;height:30px;
+  border:1px solid rgba(255,255,255,.75);border-radius:9px;
+  background:rgba(255,255,255,.4);color:#5c3a12;
+  font-size:16px;line-height:1;cursor:pointer;
+}
+.site-banner-shrink-btn:hover{background:rgba(255,255,255,.65)}
+
+/* Shrunk state — a small floating pill, fixed so it stays visible while
+   the page scrolls; clicking it (not a full dismiss) restores the full
+   banner. Hidden by default, shown only once .is-shrunk is set. */
+.site-banner-pill{
+  display:none;
+  position:fixed;right:18px;bottom:18px;z-index:140;
+  align-items:center;gap:8px;
+  max-width:min(280px,calc(100vw - 36px));
+  padding:10px 16px;border:0;border-radius:999px;
+  background:rgba(255,196,120,.92);color:#5c3a12;
+  border:1px solid rgba(255,255,255,.75);
+  box-shadow:0 18px 40px rgba(120,80,20,.28);
+  backdrop-filter:blur(14px);
+  font:600 12px 'DM Sans';text-align:left;cursor:pointer;
+}
+.site-banner.is-shrunk .site-banner-pill{display:flex}
+.site-banner-pill-dot{
+  width:8px;height:8px;flex:0 0 auto;border-radius:50%;
+  background:#b23a1f;
+}
+.site-banner-pill-text{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* ---------------------------------------------------------------
    Quick-contact bar — frozen strip above the header, phone numbers
    pulled from site-settings (see js/site-data.js)
 --------------------------------------------------------------- */
@@ -218,6 +283,12 @@ a{color:inherit}
   .main-nav{display:none}
   .hamburger-toggle{display:inline-flex}
   .header-badges{display:none}
+}
+
+@media(max-width:560px){
+  .site-banner-image{display:none}
+  .site-banner-inner{padding:10px 16px}
+  .site-banner-pill{right:12px;bottom:12px;max-width:calc(100vw - 24px)}
 }
 
 /* ---------------------------------------------------------------

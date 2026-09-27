@@ -1,8 +1,9 @@
 /**
  * site.js
- * Renders the shared header, quick-contact bar, mobile nav, page content,
- * and footer into the placeholder elements every page includes
- * (#quick-contact, #site-header, #main-content .page-content, #site-footer).
+ * Renders the emergency banner, shared header, quick-contact bar, mobile
+ * nav, page content, and footer into the placeholder elements every page
+ * includes (#site-banner, #quick-contact, #site-header,
+ * #main-content .page-content, #site-footer).
  * One render path per page-load == one place to change the chrome for all
  * 22 pages. Reads data from SiteData.load() (see site-data.js), which now
  * fetches get-page-data.js for real (Phase 6). After rendering, dispatches
@@ -134,6 +135,73 @@
         "</div>"
       );
     }).join("");
+  }
+
+  // Emergency banner (CLAUDE.md Section 8). Shrink state persists across
+  // page navigation within the same tab via sessionStorage — but the key
+  // is scoped to this specific banner's LastUpdated, not a fixed name, so
+  // saving a NEW banner (a new LastUpdated) always starts full-size again
+  // even if the visitor already shrank a previous alert earlier in the
+  // same session. Falling back to bannerText when LastUpdated is missing
+  // keeps this safe against older/partially-seeded banner Blobs.
+  function bannerShrinkKey(banner) {
+    return "bk-banner-shrunk:" + (banner.LastUpdated || banner.bannerText || "");
+  }
+
+  function renderBanner(banner) {
+    var mount = document.getElementById("site-banner");
+    if (!mount) return;
+
+    if (!banner || !banner.active || !banner.bannerText) {
+      mount.innerHTML = "";
+      mount.classList.remove("is-visible", "is-shrunk");
+      return;
+    }
+
+    var shrinkKey = bannerShrinkKey(banner);
+    var isShrunk = false;
+    try {
+      isShrunk = sessionStorage.getItem(shrinkKey) === "1";
+    } catch (e) {
+      isShrunk = false;
+    }
+
+    mount.innerHTML =
+      '<div class="site-banner-full">' +
+        '<div class="site-banner-inner">' +
+          (banner.imageURL ? '<img class="site-banner-image" src="' + escapeHtml(banner.imageURL) + '" alt="">' : "") +
+          '<p class="site-banner-text">' + escapeHtml(banner.bannerText) + "</p>" +
+          '<button type="button" class="site-banner-shrink-btn" aria-label="Minnka tilkynningu">' +
+            '<span aria-hidden="true">&ndash;</span>' +
+          "</button>" +
+        "</div>" +
+      "</div>" +
+      '<button type="button" class="site-banner-pill" aria-label="Sýna tilkynningu í fullri stærð">' +
+        '<span class="site-banner-pill-dot" aria-hidden="true"></span>' +
+        '<span class="site-banner-pill-text">' + escapeHtml(banner.bannerText) + "</span>" +
+      "</button>";
+
+    mount.classList.add("is-visible");
+    mount.classList.toggle("is-shrunk", isShrunk);
+
+    function setShrunk(shrunk) {
+      mount.classList.toggle("is-shrunk", shrunk);
+      try {
+        if (shrunk) sessionStorage.setItem(shrinkKey, "1");
+        else sessionStorage.removeItem(shrinkKey);
+      } catch (e) {
+        /* sessionStorage unavailable (private mode etc.) — safe to skip */
+      }
+    }
+
+    mount.querySelector(".site-banner-shrink-btn").addEventListener("click", function () {
+      setShrunk(true);
+    });
+    // Not a full dismiss — clicking the shrunk pill brings the full banner
+    // back rather than clearing it for the rest of the session.
+    mount.querySelector(".site-banner-pill").addEventListener("click", function () {
+      setShrunk(false);
+    });
   }
 
   function renderBadges(settings, cssClass) {
@@ -332,6 +400,7 @@
   function init() {
     var cached = getCachedData();
     var renderChrome = function (data) {
+      renderBanner(data.banner);
       renderQuickContact(data.settings);
       renderHeader(data);
       renderBackButton();
