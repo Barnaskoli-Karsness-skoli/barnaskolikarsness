@@ -40,6 +40,14 @@ function blockToText(block) {
     case "image":
       return "[Mynd]";
 
+    // Layout Grid tool — pull each text cell's own text; image cells fall
+    // back to the same "[Mynd]" placeholder as imageRow above.
+    case "layoutGrid":
+      return (block.data.cells || [])
+        .map((cell) => (cell && cell.type === "image" ? "[Mynd]" : stripInlineMarkup(cell && cell.text)))
+        .filter(Boolean)
+        .join("\n");
+
     default:
       return "";
   }

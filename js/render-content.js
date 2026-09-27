@@ -74,6 +74,31 @@
     return figures ? '<div class="content-image-row">' + figures + "</div>" : "";
   }
 
+  // Layout Grid (admin/vendor/editorjs/tools/layout-grid-tool.js) — the
+  // same text+image side-by-side layout the homepage's hardcoded intro
+  // section uses, as a reusable block on any page. Text cells are plain
+  // strings from a <textarea> (not Editor.js inline HTML like paragraph's
+  // text), so they're escaped here rather than injected raw.
+  function renderLayoutGridCell(cell) {
+    if (!cell) return "";
+    if (cell.type === "image") {
+      if (!cell.url) return "";
+      return (
+        '<div class="layout-grid-cell-image"><img src="' + escapeHtml(cell.url) + '" alt="' + escapeHtml(cell.alt) + '" loading="lazy"></div>'
+      );
+    }
+    if (!cell.text) return "";
+    return '<div class="layout-grid-cell-text"><p>' + escapeHtml(cell.text).replace(/\n/g, "<br>") + "</p></div>";
+  }
+
+  function renderLayoutGrid(block) {
+    var data = block.data || {};
+    var columns = Math.min(Math.max(parseInt(data.columns, 10) || 1, 1), 2);
+    var cellsHtml = (data.cells || []).map(renderLayoutGridCell).join("");
+    if (!cellsHtml) return "";
+    return '<div class="content-layout-grid" style="--layout-grid-columns:' + columns + '">' + cellsHtml + "</div>";
+  }
+
   function renderEmbed(block) {
     var url = block.data && block.data.url;
     if (!url || !isAllowedEmbedUrl(url)) {
@@ -107,6 +132,7 @@
     header: renderHeader,
     list: renderList,
     imageRow: renderImageRow,
+    layoutGrid: renderLayoutGrid,
     embed: renderEmbed
     // Note: "addLink" is handled separately in renderBlocks — it's grouped
     // into one resources section rather than rendered inline.

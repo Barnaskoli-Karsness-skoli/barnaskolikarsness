@@ -215,6 +215,49 @@
 }
 .add-link-preview svg{width:16px;height:16px}
 
+/* ---------------------------------------------------------------
+   Layout Grid tool (custom Editor.js block) — configurable 1–2 column,
+   2–3 row grid of text/image cells (same layout as the homepage's
+   hardcoded intro section, reusable on any page via this block).
+--------------------------------------------------------------- */
+.layout-grid-tool{padding:12px;border:1px solid rgba(160,192,195,.4);border-radius:10px;background:rgba(255,255,255,.4)}
+.layout-grid-controls{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:10px}
+.layout-grid-dim-group{display:flex;align-items:center;gap:6px;font-size:11px;color:#5d7b84}
+.layout-grid-dim-btn{
+  width:26px;height:26px;border:1px solid rgba(160,192,195,.4);border-radius:7px;
+  background:rgba(255,255,255,.5);color:#4f8390;cursor:pointer;font:700 12px 'DM Sans';
+}
+.layout-grid-dim-btn.is-selected{background:#1d4a59;color:#fff;border-color:#1d4a59}
+.layout-grid-editor-grid{display:grid;grid-template-columns:repeat(var(--layout-grid-columns,2),1fr);gap:10px}
+.layout-grid-cell-editor{
+  padding:8px;border:1px solid rgba(160,192,195,.4);border-radius:9px;background:rgba(255,255,255,.5);
+  display:flex;flex-direction:column;gap:6px;
+}
+.layout-grid-cell-type-toggle{display:flex;gap:4px}
+.layout-grid-type-btn{
+  flex:1;padding:5px 0;border:1px solid rgba(160,192,195,.4);border-radius:6px;
+  background:rgba(255,255,255,.5);color:#4f8390;cursor:pointer;font:700 10px 'DM Sans';
+}
+.layout-grid-type-btn.is-selected{background:#1d4a59;color:#fff;border-color:#1d4a59}
+.layout-grid-text-input{
+  width:100%;min-height:70px;padding:8px 9px;font-size:12.5px;font-family:'DM Sans',sans-serif;
+  border:1px solid rgba(160,192,195,.5);border-radius:7px;outline:0;resize:vertical;
+}
+.layout-grid-image-editor{display:flex;flex-direction:column;gap:6px}
+.layout-grid-image-thumb{width:100%;height:80px;object-fit:cover;border-radius:7px;display:block}
+.layout-grid-image-editor input{
+  width:100%;padding:6px 7px;font-size:11px;border:1px solid rgba(160,192,195,.5);border-radius:6px;outline:0;
+}
+.layout-grid-image-remove{
+  align-self:flex-start;padding:4px 9px;border:0;border-radius:6px;
+  background:rgba(255,205,190,.5);color:#a8544a;cursor:pointer;font-size:11px;
+}
+.layout-grid-image-add{
+  height:80px;display:grid;place-items:center;border:1.5px dashed rgba(160,192,195,.6);
+  border-radius:7px;background:transparent;color:#7a969c;cursor:pointer;font-size:11px;
+}
+.layout-grid-image-progress{font-size:10.5px;color:#7a969c;margin:0}
+
 @media(max-width:760px){
   .admin-two-col{grid-template-columns:1fr}
   .admin-shell{width:calc(100% - 32px)}
