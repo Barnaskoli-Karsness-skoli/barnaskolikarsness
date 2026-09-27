@@ -8,8 +8,13 @@
  * fetches get-page-data.js for real (Phase 6). After rendering, dispatches
  * a "sitedata:ready" CustomEvent carrying the full fetched payload so
  * page-specific scripts (e.g. homepage.js) can react to it without a
- * second fetch. Session cache follows CLAUDE.md's "cache settings in
- * sessionStorage once per session" rule.
+ * second fetch. The sessionStorage cache (see init() below) covers only
+ * the shared chrome — nav/settings/banner, CLAUDE.md's "cache settings in
+ * sessionStorage once per session" rule — and is used purely as an
+ * instant-paint optimization while a fresh get-page-data.js fetch always
+ * still runs. Page content is never read from that cache: each page is
+ * its own Blob entry, always fetched fresh, so an edit shows up on the
+ * very next load instead of being masked by a stale same-session cache.
  */
 (function () {
   "use strict";
@@ -326,27 +331,36 @@
 
   function init() {
     var cached = getCachedData();
-    var renderAll = function (data) {
+    var renderChrome = function (data) {
       renderQuickContact(data.settings);
       renderHeader(data);
       renderBackButton();
       renderQuickLinks(data);
-      renderPageContent(data);
       renderFooter(data);
-      // Lets page-specific scripts (e.g. homepage.js's news grid) react to
-      // the same fetched data without re-fetching or re-reading sessionStorage
-      // themselves.
-      window.dispatchEvent(new CustomEvent("sitedata:ready", { detail: data }));
     };
 
+    // Cache covers only the shared chrome (nav/settings/banner) — CLAUDE.md's
+    // "fetched once per session, reused across every page" rule. Page
+    // content is deliberately EXCLUDED and NEVER rendered from this cache:
+    // each page is its own Blob entry fetched fresh via get-page-data.js, so
+    // a cache hit here is keyed to whatever slug was last fetched in this
+    // tab — reusing it for .page-content would show a stale (or, worse, a
+    // completely different page's) body after navigating or after an edit.
+    // Rendering it now is a same-session instant-paint optimization only;
+    // the real fetch below always runs regardless, and its result is what
+    // actually renders the page content and gets cached for next time.
     if (cached) {
-      renderAll(cached);
-      return;
+      renderChrome(cached);
     }
 
     window.SiteData.load().then(function (data) {
       setCachedData(data);
-      renderAll(data);
+      renderChrome(data);
+      renderPageContent(data);
+      // Lets page-specific scripts (e.g. homepage.js's news grid) react to
+      // the same fetched data without re-fetching or re-reading sessionStorage
+      // themselves.
+      window.dispatchEvent(new CustomEvent("sitedata:ready", { detail: data }));
     });
   }
 
