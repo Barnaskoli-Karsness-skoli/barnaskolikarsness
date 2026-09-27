@@ -448,6 +448,58 @@
   // compress/upload pipeline as the carousel manager and Image Row tool).
   // ---------------------------------------------------------------
   var newsCoverImage = null; // null, or {url, alt}
+  // Tracks whether the form holds a real, already-saved entry (delete-news.js
+  // has something to delete) vs. a brand-new one being drafted — set true by
+  // loadNewsItem() and by a successful save, set back to false by
+  // resetNewsForm(). Drives whether #news-delete-btn is shown at all.
+  var newsIsExisting = false;
+
+  function setNewsEditorContent(content) {
+    if (state.newsEditor) state.newsEditor.destroy();
+    state.newsEditorReady = false;
+    document.getElementById("news-editor-holder").innerHTML = "";
+    state.newsEditor = window.EditorSetup.createEditor("news-editor-holder", content, function () {
+      if (state.newsEditorReady) markUnsaved();
+      clearInvalidBlockMarkers("news-editor-holder");
+    });
+    state.newsEditor.isReady.then(function () { state.newsEditorReady = true; });
+  }
+
+  function updateNewsDeleteButtonVisibility() {
+    var btn = document.getElementById("news-delete-btn");
+    if (btn) btn.hidden = !newsIsExisting;
+  }
+
+  function resetNewsForm() {
+    document.getElementById("news-id").value = "";
+    document.getElementById("news-title").value = "";
+    document.getElementById("news-date").value = "";
+    newsCoverImage = null;
+    renderNewsCoverManager();
+    setNewsEditorContent(null);
+    newsIsExisting = false;
+    updateNewsDeleteButtonVisibility();
+  }
+
+  function deleteNewsEntry() {
+    var id = document.getElementById("news-id").value.trim();
+    if (!id) return;
+    var title = document.getElementById("news-title").value.trim() || id;
+    if (!window.confirm("Eyða fréttinni \"" + title + "\"? Þessa aðgerð er ekki hægt að afturkalla.")) {
+      return;
+    }
+    setMessage("news-message", "Eyði...", "is-loading");
+    window.AdminApi.deleteNews(id)
+      .then(function () {
+        setMessage("news-message", "Frétt eydd.", "is-success");
+        clearUnsaved();
+        resetNewsForm();
+        loadRecentNews();
+      })
+      .catch(function (err) {
+        setMessage("news-message", "Villa við að eyða frétt: " + err.message, "is-error");
+      });
+  }
 
   function renderNewsCoverManager() {
     var wrap = document.getElementById("news-cover-manager");
@@ -508,14 +560,9 @@
         document.getElementById("news-date").value = item.date;
         newsCoverImage = item.coverImage ? { url: item.coverImage.url, alt: item.coverImage.alt || "" } : null;
         renderNewsCoverManager();
-        if (state.newsEditor) state.newsEditor.destroy();
-        state.newsEditorReady = false;
-        document.getElementById("news-editor-holder").innerHTML = "";
-        state.newsEditor = window.EditorSetup.createEditor("news-editor-holder", item.content, function () {
-          if (state.newsEditorReady) markUnsaved();
-          clearInvalidBlockMarkers("news-editor-holder");
-        });
-        state.newsEditor.isReady.then(function () { state.newsEditorReady = true; });
+        setNewsEditorContent(item.content);
+        newsIsExisting = true;
+        updateNewsDeleteButtonVisibility();
         setMessage("news-message", "Frétt hlaðin inn.", "is-success");
       })
       .catch(function (err) {
@@ -599,6 +646,8 @@
       .then(function () {
         setMessage("news-message", "Frétt vistuð!", "is-success");
         clearUnsaved();
+        newsIsExisting = true; // a save always leaves behind a real, deletable entry
+        updateNewsDeleteButtonVisibility();
         loadRecentNews(); // refresh the browse list — order/content may have changed
       })
       .catch(function (err) {
@@ -611,11 +660,9 @@
     renderNewsCoverManager();
     initNewsCoverManager();
 
-    state.newsEditor = window.EditorSetup.createEditor("news-editor-holder", null, function () {
-      if (state.newsEditorReady) markUnsaved();
-      clearInvalidBlockMarkers("news-editor-holder");
-    });
-    state.newsEditor.isReady.then(function () { state.newsEditorReady = true; });
+    setNewsEditorContent(null);
+    newsIsExisting = false;
+    updateNewsDeleteButtonVisibility();
 
     document.getElementById("news-title").addEventListener("blur", function () {
       var idField = document.getElementById("news-id");
@@ -628,6 +675,7 @@
     });
 
     document.getElementById("news-save-btn").addEventListener("click", saveNewsEntry);
+    document.getElementById("news-delete-btn").addEventListener("click", deleteNewsEntry);
   }
 
   // ---------------------------------------------------------------

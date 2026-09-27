@@ -79,6 +79,9 @@
     saveNews: function (id, title, date, content, coverImage) {
       return postJson("save-news", { id: id, title: title, date: date, content: content, coverImage: coverImage || null });
     },
+    deleteNews: function (id) {
+      return postJson("delete-news", { id: id });
+    },
     saveSiteSettings: function (settings) {
       return postJson("save-site-settings", settings);
     },
