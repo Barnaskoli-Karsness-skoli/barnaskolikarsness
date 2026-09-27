@@ -19,6 +19,18 @@ const { writeSheetsBackup } = require("./utils/sheets-backup");
 const { sendBackupFailureAlert } = require("./utils/email-alert");
 const { purgeCacheTags } = require("./utils/purge-cache");
 
+// Every non-homepage slug follows the same "<category>-<rest>" convention
+// as its real "<category>/<rest>.html" file path (e.g.
+// "grunnskolastig-reglur-um-skolasokn" -> "/grunnskolastig/reglur-um-skolasokn.html")
+// — data-page-key values are assembled that way across all 22 category
+// pages. Splitting on the FIRST hyphen only is what keeps multi-word
+// subpage names (the "reglur-um-skolasokn" part) intact.
+function pageUrlFromSlug(slug) {
+  if (slug === "homepage") return "/";
+  const dash = slug.indexOf("-");
+  return dash === -1 ? `/${slug}.html` : `/${slug.slice(0, dash)}/${slug.slice(dash + 1)}.html`;
+}
+
 exports.handler = async (event, context) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
@@ -70,7 +82,7 @@ exports.handler = async (event, context) => {
       id: key,
       type: "page",
       title: record.title,
-      url: slug === "homepage" ? "/" : `/${slug}`,
+      url: pageUrlFromSlug(slug),
       excerpt: contentToExcerpt(content)
     });
   } catch (err) {

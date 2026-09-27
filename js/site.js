@@ -224,6 +224,11 @@
         "</a>" +
         '<nav class="main-nav" aria-label="Aðalvalmynd">' + renderDesktopNav(data.nav) + "</nav>" +
         '<div class="header-badges">' + renderBadges(settings, "badge-desktop") + "</div>" +
+        '<button type="button" class="search-trigger-btn" aria-label="Leita á vefnum" aria-haspopup="dialog">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+            '<circle cx="10.3" cy="10.3" r="6.3"/><path d="M15.1 15.1 20 20"/>' +
+          "</svg>" +
+        "</button>" +
         '<button type="button" class="hamburger-toggle" aria-label="Opna valmynd" aria-expanded="false" aria-controls="mobile-nav">' +
           "<span></span>" +
         "</button>" +
