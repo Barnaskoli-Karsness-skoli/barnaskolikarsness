@@ -367,6 +367,13 @@
       return "<p>" + escapeHtml(h.days) + ": " + escapeHtml(h.hours) + "</p>";
     }).join("");
 
+    // Optional — Site Info's principalEmail field can be blank/cleared, so
+    // this renders nothing (no stray <br> or empty mailto: link) unless a
+    // real, non-whitespace value is actually set.
+    var principalEmailLine = s.principalEmail && s.principalEmail.trim()
+      ? '<br><a href="mailto:' + escapeHtml(s.principalEmail) + '">' + escapeHtml(s.principalEmail) + "</a>"
+      : "";
+
     mount.innerHTML =
       '<div class="site-footer-inner">' +
         '<div class="footer-col">' +
@@ -382,7 +389,7 @@
         '<div class="footer-col">' +
           "<h3>Opnunartími</h3>" +
           hoursLines +
-          "<p style=\"margin-top:12px\">Skólastjóri: " + escapeHtml(s.principalName) + "</p>" +
+          "<p style=\"margin-top:12px\">Skólastjóri: " + escapeHtml(s.principalName) + principalEmailLine + "</p>" +
         "</div>" +
       "</div>" +
       '<div class="footer-bottom">' +
