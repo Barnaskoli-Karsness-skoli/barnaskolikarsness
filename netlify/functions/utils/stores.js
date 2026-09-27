@@ -18,6 +18,16 @@
  * token; swap NETLIFY_PURGE_TOKEN for a dedicated PAT if it turns out not
  * to carry Blobs read/write scope.
  *
+ * Every store getter below takes an optional `token` override, defaulting
+ * to NETLIFY_PURGE_TOKEN so every existing caller (every Function) is
+ * unaffected. This exists solely for scripts/rebuild-search-index.js,
+ * which runs as a standalone script outside any Function's request
+ * context — same situation scripts/seed-content.js is already in, which
+ * is why .env.example calls NETLIFY_PURGE_TOKEN "purge-scoped only" and
+ * has seed-content.js use its own NETLIFY_AUTH_TOKEN PAT instead. Passing
+ * that token in explicitly here (rather than changing the default) keeps
+ * every Function's already-validated-in-production credential untouched.
+ *
  *   pages    — one entry per page, key `page:<slug>`
  *   news     — one entry per news item, key `news:<id>`
  *   settings — singleton entries: site-settings, banner, search-index
@@ -25,13 +35,13 @@
  */
 const { getStore } = require("@netlify/blobs");
 
-function blobsConfig(name) {
-  return { name, siteID: process.env.NETLIFY_SITE_ID, token: process.env.NETLIFY_PURGE_TOKEN };
+function blobsConfig(name, token) {
+  return { name, siteID: process.env.NETLIFY_SITE_ID, token: token || process.env.NETLIFY_PURGE_TOKEN };
 }
 
 module.exports = {
-  pagesStore: () => getStore(blobsConfig("pages")),
-  newsStore: () => getStore(blobsConfig("news")),
-  settingsStore: () => getStore(blobsConfig("settings")),
-  imagesStore: () => getStore(blobsConfig("images"))
+  pagesStore: (token) => getStore(blobsConfig("pages", token)),
+  newsStore: (token) => getStore(blobsConfig("news", token)),
+  settingsStore: (token) => getStore(blobsConfig("settings", token)),
+  imagesStore: (token) => getStore(blobsConfig("images", token))
 };

@@ -7,6 +7,13 @@
  * via Netlify's Purge API (get-search-index.js tags its response with it),
  * the same literal-purge mechanism save-page.js etc. use, rather than
  * relying on a short TTL.
+ *
+ * updateSearchIndexEntry() takes an optional `token`, threaded straight
+ * into its internal settingsStore() call — see stores.js's own comment on
+ * why this override exists (scripts/rebuild-search-index.js, a standalone
+ * script outside any Function's request context, needs NETLIFY_AUTH_TOKEN
+ * instead of the default NETLIFY_PURGE_TOKEN). save-page.js/save-news.js
+ * don't pass one, so their calls are unaffected.
  */
 const { settingsStore } = require("./stores");
 const { SEARCH_INDEX_KEY } = require("./blob-keys");
@@ -20,8 +27,8 @@ async function purgeSearchIndex() {
   }
 }
 
-async function updateSearchIndexEntry({ id, type, title, url, excerpt }) {
-  const store = settingsStore();
+async function updateSearchIndexEntry({ id, type, title, url, excerpt, token }) {
+  const store = settingsStore(token);
   const index = (await store.get(SEARCH_INDEX_KEY, { type: "json" })) || { entries: [] };
 
   const entries = index.entries.filter((entry) => entry.id !== id);
