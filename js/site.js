@@ -432,7 +432,19 @@
     var container = document.querySelector("#main-content .page-content");
     if (!container || !window.RenderContent) return;
     if (data.page && data.page.content) {
-      window.RenderContent.renderContentInto(container, data.page.content);
+      var rendered = window.RenderContent.renderContentInto(container, data.page.content);
+      // save-page.js already stamps updatedAt (ISO 8601) on every save —
+      // no backend change needed, just display it. Only appended once real
+      // content actually rendered (not onto the placeholder-content path
+      // above), and only here in .page-content — this function is never
+      // called for news.html (js/news-page.js renders into #news-content
+      // via its own separate call), so news detail pages never get this.
+      if (rendered && data.page.updatedAt) {
+        container.insertAdjacentHTML(
+          "beforeend",
+          '<p class="page-updated">Síðast uppfært: ' + escapeHtml(data.page.updatedAt.slice(0, 10)) + "</p>"
+        );
+      }
     }
   }
 

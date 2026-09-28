@@ -404,6 +404,15 @@ a{color:inherit}
 .page-content a{color:#1d6b7a;font-weight:600;text-decoration-color:rgba(29,107,122,.35)}
 .page-content img{max-width:100%;border-radius:14px;display:block}
 
+/* Last-saved stamp (save-page.js's updatedAt) — small, muted, sits below
+   the actual content rather than competing with it. Overrides .page-content
+   p's own color/size/margin via the extra class for specificity. */
+.page-content p.page-updated{
+  margin:28px 0 0;padding-top:14px;
+  border-top:1px solid rgba(116,158,163,.2);
+  color:var(--muted);font-size:11px;letter-spacing:.02em;
+}
+
 /* ---------------------------------------------------------------
    Quick Links row (Section 5b) — icon+label shortcut buttons, admin-editable.
    Homepage always shows this; other pages carry the same empty #quick-links
