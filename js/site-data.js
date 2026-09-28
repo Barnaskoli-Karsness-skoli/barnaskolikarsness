@@ -6,6 +6,37 @@
  * SiteData.load() for a real fetch; every consumer (site.js, admin, footer)
  * reads through SiteData so that swap touches one place only.
  */
+
+// Netlify Identity invite/confirmation/recovery/email-change emails always
+// link to the site root (SiteURL) — there's no per-link way to point them
+// at /admin instead — but the actual Identity widget only loads on
+// admin.html. Without this, a new editor clicking "accept invite" (or
+// resetting a password) lands on the public homepage with the token
+// stranded in the URL hash and nothing happens. This file is the first
+// shared <script> tag on every one of the 23 public pages (loaded before
+// site.js, render-content.js, etc.), so it's the earliest point available
+// to catch that hash and bounce straight to admin.html — with the token
+// still attached — before any of the rest of the page's own JS/rendering
+// runs. Deliberately does NOT load the Identity widget itself here; that
+// stays admin-only (CLAUDE.md: "Editor.js/Identity never ship to the
+// public 30 pages"), this is just the redirect.
+//
+// admin.html also loads this same file (js/site-data.js is shared, not
+// public-only), so the pathname check below is required, not optional —
+// without it, arriving at admin.html#confirmation_token=... (whether via
+// this very redirect, or a link that already pointed straight at it)
+// would immediately try to redirect to itself again.
+(function () {
+  "use strict";
+  var hash = window.location.hash;
+  var onAdminPage = /(^|\/)admin\.html$/.test(window.location.pathname);
+  if (!onAdminPage && hash && /^#(confirmation_token|invite_token|recovery_token|email_change_token)=/.test(hash)) {
+    // The admin page is admin.html at the project root (no admin/index.html
+    // exists, and netlify.toml has no redirect rules) — "/admin/" would 404.
+    window.location.replace("/admin.html" + hash);
+  }
+})();
+
 (function (global) {
   "use strict";
 
