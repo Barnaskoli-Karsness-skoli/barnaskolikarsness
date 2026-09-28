@@ -639,19 +639,40 @@
       });
   }
 
+  // "Allar fréttir" browse list — client-side paginated over whatever
+  // listNewsAdmin() returned (one fetch, cached here; paging just re-slices
+  // it). Admin-only, small dataset (lightweight {id,date,title,excerpt,...}
+  // rows, no Editor.js bodies) — fine to fetch in one call at this scale;
+  // revisit with real backend pagination only if the news store ever grows
+  // large enough for that single fetch itself to become slow.
+  var NEWS_LIST_PAGE_SIZE = 12;
+  var newsListItems = [];
+  var newsListPage = 0;
+
   function renderRecentNews(items) {
     var list = document.getElementById("news-recent-list");
-    items = items || [];
-    if (!items.length) {
+    var pagination = document.getElementById("news-list-pagination");
+    if (items) newsListItems = items; // omitted on a page-change re-render — reuse the cached list
+
+    if (!newsListItems.length) {
       list.innerHTML = '<p class="editor-empty-hint">Engar fréttir skráðar enn — bættu við fyrstu fréttinni hér til hliðar.</p>';
+      pagination.innerHTML = "";
       return;
     }
-    list.innerHTML = items
+
+    var pageCount = Math.max(1, Math.ceil(newsListItems.length / NEWS_LIST_PAGE_SIZE));
+    if (newsListPage >= pageCount) newsListPage = pageCount - 1;
+    if (newsListPage < 0) newsListPage = 0;
+
+    var start = newsListPage * NEWS_LIST_PAGE_SIZE;
+    var pageItems = newsListItems.slice(start, start + NEWS_LIST_PAGE_SIZE);
+
+    list.innerHTML = pageItems
       .map(function (item) {
         var meta = formatUpdatedMeta(item.updatedBy, item.updatedAt);
         return (
-          '<button type="button" class="secondary-button admin-news-list-item" data-news-id="' + escapeHtml(item.id) + '" style="margin:4px 6px 0 0">' +
-            escapeHtml(item.title) +
+          '<button type="button" class="admin-news-card" data-news-id="' + escapeHtml(item.id) + '">' +
+            '<span class="admin-news-card-title">' + escapeHtml(item.title) + "</span>" +
             (meta ? '<span class="admin-meta-line">' + escapeHtml(meta) + "</span>" : "") +
           "</button>"
         );
@@ -659,6 +680,24 @@
       .join("");
     list.querySelectorAll("[data-news-id]").forEach(function (btn) {
       btn.addEventListener("click", function () { loadNewsItem(btn.getAttribute("data-news-id")); });
+    });
+
+    if (pageCount <= 1) {
+      pagination.innerHTML = "";
+      return;
+    }
+    var buttons = [];
+    for (var i = 0; i < pageCount; i++) {
+      buttons.push(
+        '<button type="button" class="admin-pagination-btn' + (i === newsListPage ? " is-active" : "") + '" data-page="' + i + '" aria-label="Síða ' + (i + 1) + '"' + (i === newsListPage ? ' aria-current="true"' : "") + ">" + (i + 1) + "</button>"
+      );
+    }
+    pagination.innerHTML = buttons.join("");
+    pagination.querySelectorAll(".admin-pagination-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        newsListPage = parseInt(btn.getAttribute("data-page"), 10);
+        renderRecentNews(); // no items arg — re-render from the cached newsListItems, no refetch
+      });
     });
   }
 

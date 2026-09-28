@@ -97,11 +97,40 @@
 .secondary-button:hover{background:rgba(255,255,255,.65)}
 .danger-button{color:#a8544a;border-color:rgba(176,119,108,.35)}
 
-/* "Allar fréttir" browse-list buttons — same .secondary-button base, just
-   stacked into a title line + a small muted last-edited line instead of
-   the single-line default. */
-.admin-news-list-item{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left}
-.admin-news-list-item .admin-meta-line{margin:0;color:#8ca3a8;font-weight:500}
+/* "Allar fréttir" browse list — a responsive card grid (2-3 per row
+   depending on width, via auto-fill/minmax rather than a fixed column
+   count or breakpoints) instead of one long vertical button stack, since
+   that stopped being usable once there are dozens of entries. Same
+   glass-panel treatment (border/background/shadow tokens from
+   css/main.css's :root, also loaded on admin.html) and hover-lift as the
+   public site's .quick-link-item, just admin-scoped classes so this file
+   stays independent of the public CSS's specific selectors. */
+.admin-news-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:12px;margin-top:10px;
+}
+.admin-news-card{
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  padding:14px 16px;text-align:left;cursor:pointer;
+  border:1px solid var(--border);border-radius:14px;
+  background:var(--panel-bg);box-shadow:var(--shadow);
+  backdrop-filter:blur(14px);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.admin-news-card:hover{transform:translateY(-4px);box-shadow:0 20px 42px rgba(75,122,133,.18)}
+.admin-news-card-title{font:700 13px 'DM Sans';color:#25505e;line-height:1.35}
+.admin-news-card .admin-meta-line{margin:0;color:#8ca3a8;font-weight:500}
+
+/* Numbered page controls — same interaction pattern as the public
+   homepage's news pagination (js/homepage.js), admin-scoped classes. */
+.admin-pagination{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.admin-pagination-btn{
+  width:30px;height:30px;border:1px solid rgba(117,165,170,.4);border-radius:8px;
+  background:rgba(255,255,255,.4);color:#3a5a63;cursor:pointer;font:700 11px 'DM Sans';
+}
+.admin-pagination-btn:hover{background:rgba(255,255,255,.65)}
+.admin-pagination-btn.is-active{background:#1d4a59;border-color:#1d4a59;color:#fff}
 
 .form-message{min-height:20px;margin:12px 0 0;font-size:12px;font-weight:600}
 .form-message.is-success{color:#4e8a70}
