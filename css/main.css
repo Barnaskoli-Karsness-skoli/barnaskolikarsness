@@ -496,6 +496,26 @@ a{color:inherit}
 @media(max-width:560px){
   .page-shell,.site-header-inner,.quick-contact-inner,.back-nav{width:min(100% - 32px,1120px)}
   .page-content{padding:20px}
+
+  /* Quick-contact bar (Galaxy S25+ portrait bug): at this width, phone +
+     email + address no longer fit on one row — .quick-contact-inner's
+     overflow-x:auto was silently letting the rest scroll offscreen with no
+     visible scrollbar, so content looked missing rather than just tight.
+     Fix: drop the address here (it's already in the footer) and let the
+     remaining two items wrap onto a second line instead of scrolling.
+     --contact-bar-h is bumped to match the bar's new (up to) two-line
+     height so .site-header's sticky top offset — set from that same
+     variable — still lines up right underneath it. */
+  :root{--contact-bar-h:46px}
+  .quick-contact-inner{
+    height:auto;
+    min-height:var(--contact-bar-h);
+    flex-wrap:wrap;
+    row-gap:4px;
+    padding:6px 0;
+    overflow-x:visible;
+  }
+  .quick-contact-address{display:none}
 }
 
 /* ---------------------------------------------------------------

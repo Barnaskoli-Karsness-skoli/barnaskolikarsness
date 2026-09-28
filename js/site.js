@@ -89,7 +89,11 @@
       "</a>"
     );
     items.push(
-      '<a class="quick-contact-item" href="' + escapeHtml(settings.address.mapUrl) + '" target="_blank" rel="noopener">' +
+      // quick-contact-address: hidden at the ≤560px breakpoint (see
+      // css/main.css) — the address is already in the footer, and dropping
+      // it there is what lets phone + email actually fit within the bar's
+      // width on a narrow phone instead of silently overflowing sideways.
+      '<a class="quick-contact-item quick-contact-address" href="' + escapeHtml(settings.address.mapUrl) + '" target="_blank" rel="noopener">' +
         escapeHtml(settings.address.text) +
       "</a>"
     );
