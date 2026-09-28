@@ -9,13 +9,20 @@
  * fetches get-page-data.js for real (Phase 6). After rendering, dispatches
  * a "sitedata:ready" CustomEvent carrying the full fetched payload so
  * page-specific scripts (e.g. homepage.js) can react to it without a
- * second fetch. The sessionStorage cache (see init() below) covers only
- * the shared chrome — nav/settings/banner, CLAUDE.md's "cache settings in
+ * second fetch. The sessionStorage cache (see init() below) covers the
+ * shared chrome — nav/settings, CLAUDE.md's "cache settings in
  * sessionStorage once per session" rule — and is used purely as an
  * instant-paint optimization while a fresh get-page-data.js fetch always
  * still runs. Page content is never read from that cache: each page is
  * its own Blob entry, always fetched fresh, so an edit shows up on the
  * very next load instead of being masked by a stale same-session cache.
+ * The emergency banner is excluded from the instant-paint pass for the
+ * same reason, even though its state does still ride along inside the
+ * cached blob: painting a stale banner.active from an earlier load in
+ * this tab session — even for the sub-second gap before the real fetch
+ * resolves — is a real flash of a wrong emergency-alert state, unlike
+ * nav/footer content staying stale for a moment being harmless. See
+ * renderBanner()'s only call site, inside SiteData.load().then(...).
  */
 (function () {
   "use strict";
@@ -427,8 +434,11 @@
 
   function init() {
     var cached = getCachedData();
+    // renderBanner() is deliberately NOT part of this shared function — see
+    // its own call site below, inside SiteData.load().then(...), and the
+    // file-header comment on why the banner never renders from the cached/
+    // instant-paint pass the way the rest of this chrome does.
     var renderChrome = function (data) {
-      renderBanner(data.banner);
       renderQuickContact(data.settings);
       renderHeader(data);
       renderBackButton();
@@ -436,7 +446,7 @@
       renderFooter(data);
     };
 
-    // Cache covers only the shared chrome (nav/settings/banner) — CLAUDE.md's
+    // Cache covers the shared chrome (nav/settings) — CLAUDE.md's
     // "fetched once per session, reused across every page" rule. Page
     // content is deliberately EXCLUDED and NEVER rendered from this cache:
     // each page is its own Blob entry fetched fresh via get-page-data.js, so
@@ -452,6 +462,11 @@
 
     window.SiteData.load().then(function (data) {
       setCachedData(data);
+      // Only ever rendered here, from the fresh fetch — never from the
+      // cached instant-paint pass above, so a stale banner.active from an
+      // earlier load in this tab session can never flash on screen even
+      // for the sub-second gap before this resolves.
+      renderBanner(data.banner);
       renderChrome(data);
       renderPageContent(data);
       // Lets page-specific scripts (e.g. homepage.js's news grid) react to
