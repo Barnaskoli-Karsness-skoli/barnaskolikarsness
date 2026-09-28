@@ -94,6 +94,9 @@
     listNews: function () {
       return getJson("list-news");
     },
+    listNewsAdmin: function () {
+      return getJson("list-news-admin");
+    },
     savePage: function (slug, title, content) {
       return postJson("save-page", { slug: slug, title: title, content: content });
     },

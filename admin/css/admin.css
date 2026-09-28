@@ -97,10 +97,22 @@
 .secondary-button:hover{background:rgba(255,255,255,.65)}
 .danger-button{color:#a8544a;border-color:rgba(176,119,108,.35)}
 
+/* "Allar fréttir" browse-list buttons — same .secondary-button base, just
+   stacked into a title line + a small muted last-edited line instead of
+   the single-line default. */
+.admin-news-list-item{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left}
+.admin-news-list-item .admin-meta-line{margin:0;color:#8ca3a8;font-weight:500}
+
 .form-message{min-height:20px;margin:12px 0 0;font-size:12px;font-weight:600}
 .form-message.is-success{color:#4e8a70}
 .form-message.is-error{color:#b66e68}
 .form-message.is-loading{color:#78969d}
+
+/* Small "last edited by X, at Y" byline — admin-only (page/news editors,
+   the recent-news browse list), never shown on the public site. Empty
+   when there's nothing to show yet (a new/unsaved entry). */
+.admin-meta-line{margin:4px 0 0;font-size:11px;color:#8ca3a8}
+.admin-meta-line:empty{display:none}
 
 .admin-field{display:block;margin-top:16px}
 .admin-field>span{display:block;margin-bottom:6px;color:#5d7b84;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}

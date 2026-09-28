@@ -47,6 +47,24 @@
     el.className = "form-message" + (cssClass ? " " + cssClass : "");
   }
 
+  // "Síðast breytt af X · YYYY-MM-DD HH:MM" bylines (page editor, news
+  // editor, and the news browse list) — admin-only, sourced from the
+  // updatedAt/updatedBy every save-*.js Function already stamps on its
+  // record. Sliced straight out of the ISO timestamp, same approach as
+  // the public site's own "Síðast uppfært" line in js/site.js — exact,
+  // no timezone-conversion surprises.
+  function formatUpdatedMeta(updatedBy, updatedAt) {
+    if (!updatedBy && !updatedAt) return "";
+    var when = updatedAt ? updatedAt.slice(0, 10) + " " + updatedAt.slice(11, 16) : "";
+    if (updatedBy && when) return "Síðast breytt af " + updatedBy + " · " + when;
+    return "Síðast breytt af " + (updatedBy || "") + when;
+  }
+
+  function setLastEditedLine(elId, updatedBy, updatedAt) {
+    var el = document.getElementById(elId);
+    if (el) el.textContent = formatUpdatedMeta(updatedBy, updatedAt);
+  }
+
   function markUnsaved() {
     state.hasUnsavedChanges = true;
   }
@@ -314,6 +332,7 @@
         });
         state.pageEditor.isReady.then(function () { state.pageEditorReady = true; });
         setMessage("page-message", "", "");
+        setLastEditedLine("page-last-edited", data.page && data.page.updatedBy, data.page && data.page.updatedAt);
 
         if (slug === "homepage") {
           state.siteSettings = data.settings || state.siteSettings;
@@ -336,6 +355,7 @@
         });
         state.pageEditor.isReady.then(function () { state.pageEditorReady = true; });
         setMessage("page-message", "Ekki tókst að sækja núverandi efni síðunnar — byrjar á tómum grunni.", "is-error");
+        setLastEditedLine("page-last-edited", null, null);
       });
   }
 
@@ -372,9 +392,10 @@
         }
         return window.AdminApi.savePage(state.currentPageSlug, title, outputData);
       })
-      .then(function () {
+      .then(function (result) {
         setMessage("page-message", "Vistað!", "is-success");
         clearUnsaved();
+        setLastEditedLine("page-last-edited", result.page && result.page.updatedBy, result.page && result.page.updatedAt);
       })
       .catch(function (err) {
         setMessage("page-message", "Villa við að vista: " + err.message, "is-error");
@@ -524,6 +545,7 @@
     setNewsEditorContent(null);
     newsIsExisting = false;
     updateNewsDeleteButtonVisibility();
+    setLastEditedLine("news-last-edited", null, null);
   }
 
   function deleteNewsEntry() {
@@ -609,9 +631,11 @@
         newsIsExisting = true;
         updateNewsDeleteButtonVisibility();
         setMessage("news-message", "Frétt hlaðin inn.", "is-success");
+        setLastEditedLine("news-last-edited", item.updatedBy, item.updatedAt);
       })
       .catch(function (err) {
         setMessage("news-message", "Fréttin fannst ekki: " + err.message, "is-error");
+        setLastEditedLine("news-last-edited", null, null);
       });
   }
 
@@ -624,9 +648,11 @@
     }
     list.innerHTML = items
       .map(function (item) {
+        var meta = formatUpdatedMeta(item.updatedBy, item.updatedAt);
         return (
-          '<button type="button" class="secondary-button" data-news-id="' + escapeHtml(item.id) + '" style="margin:4px 6px 0 0">' +
+          '<button type="button" class="secondary-button admin-news-list-item" data-news-id="' + escapeHtml(item.id) + '" style="margin:4px 6px 0 0">' +
             escapeHtml(item.title) +
+            (meta ? '<span class="admin-meta-line">' + escapeHtml(meta) + "</span>" : "") +
           "</button>"
         );
       })
@@ -637,7 +663,10 @@
   }
 
   function loadRecentNews() {
-    window.AdminApi.listNews()
+    // listNewsAdmin (not the public listNews) — see list-news-admin.js's
+    // header comment for why the updatedBy/updatedAt fields it adds can't
+    // safely live on the public, CDN-cached list-news.js response.
+    window.AdminApi.listNewsAdmin()
       .then(function (data) { renderRecentNews(data.items || []); })
       .catch(function () {
         // list-news.js itself always answers 200 with an empty list on a
@@ -688,11 +717,12 @@
         }
         return window.AdminApi.saveNews(id, title, date, outputData, newsCoverImage);
       })
-      .then(function () {
+      .then(function (result) {
         setMessage("news-message", "Frétt vistuð!", "is-success");
         clearUnsaved();
         newsIsExisting = true; // a save always leaves behind a real, deletable entry
         updateNewsDeleteButtonVisibility();
+        setLastEditedLine("news-last-edited", result.news && result.news.updatedBy, result.news && result.news.updatedAt);
         loadRecentNews(); // refresh the browse list — order/content may have changed
       })
       .catch(function (err) {
@@ -708,6 +738,7 @@
     setNewsEditorContent(null);
     newsIsExisting = false;
     updateNewsDeleteButtonVisibility();
+    setLastEditedLine("news-last-edited", null, null);
 
     document.getElementById("news-title").addEventListener("blur", function () {
       var idField = document.getElementById("news-id");
