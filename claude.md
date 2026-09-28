@@ -107,6 +107,23 @@ These populate `site-settings` (see Admin Portal below) — treat as the initial
 
 ---
 
+## Infrastructure & Access (added 2026-09-28)
+
+**GitHub:** Real repo transferred from a personal account into a shared GitHub organization, `Barnaskoli-Karsness-skoli`, owned by the official school account (barnaskolikarsness@kopskolar.is). Repo: `Barnaskoli-Karsness-skoli/barnaskolikarsness`. Both the primary developer's personal GitHub account (BjornMagnusAndersson) and the shared school account are Owners of this org, so either can manage it independently — access doesn't depend on either single account staying active. The repo is currently **Public** (not Private) — this was necessary because Netlify's free tier cannot deploy a private repo owned by a GitHub Organization. This is considered safe because no secrets are ever committed to the repo; all credentials live in Netlify's environment variables. A leftover placeholder repo, `barnaskoli-karsness-vefsida`, also exists in the org from initial setup exploration and can be deleted — it holds no real content.
+
+**Netlify:** The live site is hosted entirely under the shared school account's own Netlify account (not the developer's personal account), on the Free plan. This avoids any recurring personal cost and means the school account has full, independent access to the site, its environment variables, and Identity users — not dependent on the developer's personal account remaining active. Day-to-day development still happens via the developer's normal GitHub push workflow; Netlify auto-deploys from the org repo regardless of which account owns the Netlify project.
+
+**Environment variables set on the live Netlify project:**
+- `NETLIFY_SITE_ID` — the project's own site ID (required explicitly; automatic context injection does not work for Functions on this account).
+- `NETLIFY_PURGE_TOKEN` — a Netlify Personal Access Token (not an arbitrary secret) generated from the shared school account, marked as a secret value. Used both as the Blobs read/write credential (default in `netlify/functions/utils/stores.js`) and as the Purge API bearer token (`netlify/functions/utils/purge-cache.js`). No expiration date set — note this needs periodic review/rotation since Netlify tokens don't expire automatically here.
+- `SHEETS_BACKUP_URL` / `SHEETS_BACKUP_TOKEN` — **not yet set**. The Google Sheets backup feature described in the Backup section above is not yet built or deployed. This remains an open task; until it exists, there is no working disaster-recovery backup of saved content, beyond Netlify Blobs itself.
+
+**Known accepted risk:** the shared school account (barnaskolikarsness@kopskolar.is) has no 2FA enabled, and the school has no dedicated device to support one easily. Recommended future fix: set up an authenticator app on a shared office computer, or printed backup codes stored securely at school — not urgent, but should be addressed before this account becomes the sole gatekeeper of more sensitive functionality.
+
+**Fixed (2026-09-28):** the admin login (`admin.js`'s `initLoginGate()` / `admin-api.js`'s `authHeaders()`) used to treat a cached-but-expired Identity session as valid and silently swallow a failed token refresh instead of forcing re-login — editors could appear logged in while saves silently failed. This is resolved: both paths now funnel through a shared `forceReLogin()` (`window.AdminAuth.forceReLogin`, defined in `admin.js`) that clears the stale session and drops back to the login screen — `handleUser()` proactively calls `user.jwt()` before trusting a cached session enough to show the dashboard, and `authHeaders()`'s reactive check calls it if a token refresh fails mid-session.
+
+---
+
 ## Admin Portal (Section 7)
 
 Hand-built custom UI (not a CMS product), ice-glass styled per the design system above.
@@ -237,3 +254,5 @@ Place these Póst-IT files in a `/Postit files` folder at the project root (read
 - `Contact_info_box.txt` — confirmed real contact data (content only, ignore its green styling)
 - `Dropdown_menu.txt` — confirmed nav structure (content/structure only, ignore its green styling)
 - `Pic_carousel.txt` — working carousel interaction to reuse (behavior only, restyle the dots)
+
+Chat history from initial infrastructure setup (repo transfer, Netlify account choice, env var setup) is not authoritative — the "Infrastructure & Access" section above is. If that history and this file ever disagree, this file wins, same rule as everywhere else in this document.
