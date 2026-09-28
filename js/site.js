@@ -439,7 +439,11 @@
       // above), and only here in .page-content — this function is never
       // called for news.html (js/news-page.js renders into #news-content
       // via its own separate call), so news detail pages never get this.
-      if (rendered && data.page.updatedAt) {
+      // Excluded on the homepage specifically (data.slug === "homepage")
+      // — too prominent in that page's small intro-text box compared to
+      // how it reads at the bottom of a full subpage; every other page
+      // still gets it.
+      if (rendered && data.page.updatedAt && data.slug !== "homepage") {
         container.insertAdjacentHTML(
           "beforeend",
           '<p class="page-updated">Síðast uppfært: ' + escapeHtml(data.page.updatedAt.slice(0, 10)) + "</p>"
