@@ -13,6 +13,16 @@
  * (getPageData etc.) get the header too when a user happens to be logged
  * in, but those Functions don't require it — only the save/upload
  * Functions actually check it server-side (netlify/functions/utils/auth.js).
+ *
+ * If jwt() itself fails — the refresh token has also gone stale, not just
+ * the access token — that means the session is actually dead, not just
+ * due for a refresh. Rather than silently sending the request with no
+ * Authorization header (a 401 the caller sees as a generic "failed to
+ * save" error with no indication why), this calls admin.js's shared
+ * window.AdminAuth.forceReLogin(), the same recovery path
+ * initLoginGate()'s own proactive check uses on page load, so a session
+ * going stale mid-use cleanly drops the admin back to the login screen
+ * too instead of leaving the dashboard up but non-functional.
  */
 (function (global) {
   "use strict";
@@ -29,6 +39,7 @@
       })
       .catch(function (err) {
         console.error("admin-api: failed to get a fresh Identity token:", err);
+        if (global.AdminAuth) global.AdminAuth.forceReLogin();
         return {};
       });
   }

@@ -86,63 +86,108 @@
 
   // ---------------------------------------------------------------
   // Login gate (Netlify Identity)
+  //
+  // showLoginScreen/showDashboard/handleUser/forceReLogin live at module
+  // scope (not nested inside initLoginGate()) so forceReLogin() — the
+  // shared stale-session recovery path — can be reached both from
+  // handleUser() right here and from admin-api.js's authHeaders() (a
+  // separate module), via window.AdminAuth, without duplicating the
+  // logic in two places.
   // ---------------------------------------------------------------
   function isAllowedEmail(email) {
     return typeof email === "string" && email.toLowerCase().endsWith(ALLOWED_EMAIL_DOMAIN);
   }
 
-  function initLoginGate() {
+  var dashboardBooted = false;
+
+  function showLoginScreen(message) {
     var loginScreen = document.getElementById("admin-login-screen");
     var dashboard = document.getElementById("admin-dashboard");
+    var loginError = document.getElementById("admin-login-error");
+    dashboard.hidden = true;
+    loginScreen.hidden = false;
+    if (loginError) {
+      loginError.textContent = message || "";
+      loginError.hidden = !message;
+    }
+  }
+
+  function showDashboard(user) {
+    var loginScreen = document.getElementById("admin-login-screen");
+    var dashboard = document.getElementById("admin-dashboard");
+    var currentUserLabel = document.getElementById("admin-current-user");
+    loginScreen.hidden = true;
+    dashboard.hidden = false;
+    if (currentUserLabel) currentUserLabel.textContent = user.email;
+    // Identity's "init"/"login" events can both fire for one real
+    // session (e.g. a cached session resolving after page load); only
+    // boot the dashboard's data/listeners once.
+    if (!dashboardBooted) {
+      dashboardBooted = true;
+      initDashboard();
+    }
+  }
+
+  // Clears a stale/dead Identity session and drops cleanly back to the
+  // login screen. Two callers: handleUser()'s proactive check below (a
+  // cached session found on page load whose token can't actually be
+  // refreshed) and admin-api.js's authHeaders() reactive check (a session
+  // that goes stale mid-use, e.g. after sitting idle for a long time) —
+  // both funnel through here so the recovery is identical either way,
+  // instead of one silently failing a save with a generic error while the
+  // other shows a broken-looking dashboard.
+  function forceReLogin(message) {
+    state.currentUser = null;
+    showLoginScreen(message || "Innskráning er útrunnin — skráðu þig inn aftur.");
+    // Clears the persisted session so a later reload/init can't pick the
+    // same dead user back up. If the dashboard had already booted, the
+    // "logout" listener below reloads the page for a fully clean slate
+    // (torn-down Editor.js instances, listeners, etc.); if it hadn't,
+    // this is a harmless no-op on top of the showLoginScreen() above.
+    window.netlifyIdentity.logout();
+  }
+
+  window.AdminAuth = { forceReLogin: forceReLogin };
+
+  function handleUser(user) {
+    if (!user) {
+      state.currentUser = null;
+      showLoginScreen();
+      return;
+    }
+
+    if (!isAllowedEmail(user.email)) {
+      // Belt: reject client-side immediately with a clear reason. The
+      // suspenders (real boundary) is auth.js's identical check on every
+      // save Function — this client check is UX only, never trust it
+      // as the security control.
+      state.currentUser = null;
+      window.netlifyIdentity.logout();
+      showLoginScreen("Notandinn " + user.email + " hefur ekki aðgang að stjórnborðinu — aðeins @kopskolar.is netföng eru leyfð.");
+      return;
+    }
+
+    // Proactive check: a non-null user here is only a locally-cached
+    // record from a previous session — Identity's "init" event fires from
+    // whatever's in localStorage without itself confirming the session is
+    // still good. Actually request a token once before trusting it enough
+    // to show the dashboard, so a session that died while this tab was
+    // closed/idle lands back on the login screen immediately instead of a
+    // dashboard that looks fine but fails every action.
+    user.jwt()
+      .then(function () {
+        state.currentUser = user;
+        showDashboard(user);
+      })
+      .catch(function (err) {
+        console.error("admin: cached session's token could not be refreshed:", err);
+        forceReLogin();
+      });
+  }
+
+  function initLoginGate() {
     var loginBtn = document.getElementById("admin-login-btn");
     var logoutBtn = document.getElementById("admin-logout-btn");
-    var loginError = document.getElementById("admin-login-error");
-    var currentUserLabel = document.getElementById("admin-current-user");
-    var dashboardBooted = false;
-
-    function showLoginScreen(message) {
-      dashboard.hidden = true;
-      loginScreen.hidden = false;
-      if (loginError) {
-        loginError.textContent = message || "";
-        loginError.hidden = !message;
-      }
-    }
-
-    function showDashboard(user) {
-      loginScreen.hidden = true;
-      dashboard.hidden = false;
-      if (currentUserLabel) currentUserLabel.textContent = user.email;
-      // Identity's "init"/"login" events can both fire for one real
-      // session (e.g. a cached session resolving after page load); only
-      // boot the dashboard's data/listeners once.
-      if (!dashboardBooted) {
-        dashboardBooted = true;
-        initDashboard();
-      }
-    }
-
-    function handleUser(user) {
-      if (!user) {
-        state.currentUser = null;
-        showLoginScreen();
-        return;
-      }
-
-      if (!isAllowedEmail(user.email)) {
-        // Belt: reject client-side immediately with a clear reason. The
-        // suspenders (real boundary) is auth.js's identical check on every
-        // save Function — this client check is UX only, never trust it
-        // as the security control.
-        state.currentUser = null;
-        window.netlifyIdentity.logout();
-        showLoginScreen("Notandinn " + user.email + " hefur ekki aðgang að stjórnborðinu — aðeins @kopskolar.is netföng eru leyfð.");
-        return;
-      }
-
-      state.currentUser = user;
-      showDashboard(user);
-    }
 
     window.netlifyIdentity.on("init", handleUser);
     window.netlifyIdentity.on("login", function (user) {
