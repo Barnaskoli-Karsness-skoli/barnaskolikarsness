@@ -89,7 +89,7 @@
     },
     {
       key: "foreldrarad",
-      label: "Foreldraráð",
+      label: "Foreldrar",
       href: "/foreldrarad/index.html",
       children: [
         { label: "Foreldrafélag", href: "/foreldrarad/foreldrafelag.html" }

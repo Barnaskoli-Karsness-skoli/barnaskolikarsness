@@ -151,6 +151,12 @@ First real screenshots came in (subpages `fristund/reglur.html`, `grunnskolastig
 
 **Reminder for later, not a retheme concern:** these are pre-seed placeholder pages (per CONTENT GAPS above) — once the seed script runs and `site.js` renders real Blob content over this static markup, this exact fix is what the seeded Add Link block already produces natively. Nothing to do about this now, just don't be surprised if static fallback markup like this needs the same treatment again if it's ever hand-edited again before Phase 5–7 land.
 
+**Confirmed fixed by real screenshots (2026-09-30):** the PDF tile fix worked — green tile + icon confirmed live on the deployed `fristund/reglur.html`. Homepage, subpages, and the admin toolbar (login modal, tab bar, banner form/buttons) all confirmed correctly green in production. **The retheme itself is done.**
+
+**Retracted:** a first homepage screenshot appeared to show the header/nav missing, replaced by clipped/ghosted text. A follow-up screenshot of the same page shows the header rendering fully and correctly, matching every subpage — the first screenshot was almost certainly a scroll-position or capture-timing artifact, not a real bug. No code issue here; nothing to investigate.
+
+**Not a bug (correction):** the doubled "Tengd skjöl" heading seen on `fristund/reglur.html` and `leikskolastig/skoladagatal.html` is expected — it's placeholder/seed text (per CONTENT GAPS: none of the 30 pages have real content yet) that itself happens to contain a "Tengd skjöl" line, on top of the template's own structural heading for the resource cards. It resolves on its own once real content replaces the seeded placeholder text — nothing to investigate or fix.
+
 **Still outstanding regardless of the above:** the admin's Editor.js toolbar itself (the `#00844d` icon swap, the checkbox states) still hasn't been looked at in a browser. Confirm that too before calling any of this done.
 
 **Why that check is still blocked (2026-09-30):** opening `admin.html` via `file://` locally hits "Failed to load settings from /.netlify/identity" — expected, not a retheme bug. Netlify Identity only resolves against a real deployed site; there's no local server for it to talk to yet (nothing committed/pushed). One thing this *did* confirm: the login modal shell itself (dark overlay, "Skrá inn" button) is already correctly green — the `tickets.html`-derived login dialog styling picked up the retheme fine. To actually see the Editor.js toolbar, either deploy (even a draft/branch deploy on the Netlify account) or run `netlify dev` locally — the latter is likely blocked by this machine's application allow-listing, so deploying is the realistic path.
@@ -178,9 +184,13 @@ Five top-level categories, each a dropdown of subpages:
 - **Leikskólastig** (preschool level) — Skóladagatal, Leyfistilkynning, Reglur, Vala app, Matseðill, Skólabíll, Lubbi finnur málbein
 - **Grunnskólastig** (elementary level) — Skóladagatal, Leyfisbeiðnir, Reglur um skólasókn, Mentor app, Matseðill
 - **Frístund** — Frístundabíll, Dagskipulag, Reglur, Leyfistilkynning
-- **Foreldraráð** (parent council) — Foreldrafélag
+- **Foreldraráð** (parent council) — Foreldrafélag — **display label changed to "Foreldrar" (decided 2026-09-30, at admins' request)**. Applies to every place the label is shown as text: the top nav item, the page's own H1/title, the admin's page/section dropdown entry, and the quick-links type/option label. **Not changed:** the URL/folder (`foreldrarad/`) and any internal `href`s pointing at it — this is a label-only rename, not a slug rename, since nothing about the site is shared/public yet and a slug change would mean hunting down every internal link. Say so explicitly if the URL should change too; that's a bigger, different task.
 
 Responsive: full horizontal nav on desktop, hamburger menu on tablet/mobile (the old version only handled this by stacking dropdowns vertically at ≤768px — build a real hamburger toggle instead, matching the ice-glass design system). Back button on every non-homepage page (`history.back()`, homepage fallback) for iPad/iPhone users lacking an OS-level back button.
+
+### Bug — quick-links toggle ignored by `leikskolastig/skoladagatal.html` (found 2026-09-30)
+
+The admin's "Sýna flýtileiðir á öllum síðum" (show quick-links on all pages) toggle is currently **off**, and this correctly hides the quick-links icon row on every batch-generated page (confirmed: Matseðill, Foreldraráð pages correctly hide it) except the homepage, which the toggle's own label says always shows them regardless. **`leikskolastig/skoladagatal.html` shows the row anyway, on every visit, regardless of the toggle.** Likely cause: this is the Phase 2 "fully worked example page" (per the Build Plan — the one hand-built page used to approve the design before the other 29 were batch-generated from its template), and probably has the quick-links markup hardcoded directly into it rather than driven by the same site-settings-toggle logic the batch-generated pages use. Needs: confirm that theory by diffing this page's quick-links markup against a batch-generated page's, then wire it to the same toggle-respecting logic (or regenerate it from the current template) so it behaves like every other subpage.
 
 ---
 
