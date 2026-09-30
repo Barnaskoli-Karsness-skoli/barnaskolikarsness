@@ -34,7 +34,7 @@ class EmbedTool {
     const label = document.createElement("div");
     label.textContent = "Hlekkur á Canva, Google Slides eða Google Drive:";
     label.style.fontSize = "11px";
-    label.style.color = "#5d7b84";
+    label.style.color = "var(--text-dim)";
     this.wrapper.appendChild(label);
 
     const input = document.createElement("input");

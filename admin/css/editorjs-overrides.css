@@ -1,0 +1,68 @@
+/* ---------------------------------------------------------------
+   editorjs-overrides.css — admin-only (linked from admin.html, never
+   loaded on public pages).
+
+   Re-hues Editor.js's blue chrome (selection, active icons, focus
+   rings, drop indicator, loader, list checkboxes) to the green
+   retheme, per CLAUDE.md "Green Retheme". Lives here instead of
+   hand-patching the vendored editorjs.umd.js / list.umd.js so an
+   Editor.js upgrade doesn't silently discard it.
+
+   Editor.js injects its own <style> at runtime, after this file's
+   <link>, so every selector is prefixed with `html`/`body` to win on
+   specificity instead of source order.
+
+   Values are the old blues hue-rotated to H=155° (S/L held), same
+   rule as main.css's tokens. Only the one execCommand highlight color
+   (#a8d6ff → #a8ffdb) is a JS patch, in editorjs.umd.js.
+   Known untouched: Editor.js's console-log badge styling (#006FEA,
+   rgba(56,138,229,.16) near the top of editorjs.umd.js) — devtools
+   only, never rendered on the page — and its brief toast colors.
+--------------------------------------------------------------- */
+:root{
+  --ejs-active:#00844d;              /* was #388AE5 (brand green, not rotated) — active icons, drop indicator, loader */
+  --ejs-selection:#e1fff3;           /* was #e1f2ff — selected block background */
+  --ejs-inline-selection:#d4ffed;    /* was #d4ecff — text selection */
+  --ejs-active-bg:rgba(0,132,77,.1);   /* was rgba(56,138,229,.1) — brand green at .1 */
+  --ejs-focus-bg:rgba(34,255,163,.08);   /* was rgba(34,186,255,.08) */
+  --ejs-focus-ring:rgba(7,227,135,.08);  /* was rgba(7,161,227,.08) */
+  --ejs-rubber-band:#2edc9433;       /* was #2eaadc33 — rubber-band selection */
+  --ejs-checkbox:#00844d;            /* was #369FFF (brand green, not rotated) (list.umd.js) */
+  --ejs-checkbox-hover:#00ab64;      /* was #0059AB (list.umd.js) */
+}
+
+html:root{
+  --selectionColor:var(--ejs-selection);
+  --inlineSelectionColor:var(--ejs-inline-selection);
+  --color-active-icon:var(--ejs-active);
+}
+
+body .ce-inline-toolbar,
+body .ce-popover,
+body .ce-popover--inline{
+  --color-background-icon-active:var(--ejs-active-bg);
+  --color-text-icon-active:var(--ejs-active);
+  --color-background-item-focus:var(--ejs-focus-bg);
+  --color-shadow-item-focus:var(--ejs-focus-ring);
+}
+
+body .cdx-list{
+  --color-bg-checked:var(--ejs-checkbox);
+  --color-bg-checked-hover:var(--ejs-checkbox-hover);
+}
+
+body .codex-editor-overlay__rectangle{background-color:var(--ejs-rubber-band)}
+body .codex-editor ::-moz-selection{background-color:var(--ejs-inline-selection)}
+body .codex-editor ::selection{background-color:var(--ejs-inline-selection)}
+body .ce-block--selected .ce-block__content{background:var(--ejs-selection)}
+body .ce-block--drop-target .ce-block__content:before{border-color:var(--ejs-active)}
+body .ce-block--drop-target .ce-block__content:after{
+  color:var(--ejs-active);
+  background:repeating-linear-gradient(90deg,var(--ejs-active),var(--ejs-active) 1px,#fff 1px,#fff 6px);
+}
+body .cdx-settings-button--focused{
+  background:var(--ejs-focus-bg)!important;
+  box-shadow:inset 0 0 0 1px var(--ejs-focus-ring);
+}
+body .cdx-settings-button--active{color:var(--ejs-active)}
+body .cdx-loader:before{border-left-color:var(--ejs-active)}

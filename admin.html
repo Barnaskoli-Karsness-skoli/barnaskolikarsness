@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#eaf5f7">
+<meta name="theme-color" content="#eaf7f2">
 <title>Stjórnborð | Barnaskóli Kársness</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="admin/css/admin.css">
+<link rel="stylesheet" href="admin/css/editorjs-overrides.css">
 </head>
 <body>
   <div class="ambient ambient-one"></div>
@@ -42,7 +43,7 @@
         <p>Breyttu síðum, fréttum, borða og grunnupplýsingum skólans.</p>
       </div>
       <div class="admin-actions">
-        <span id="admin-current-user" style="color:#5d7b84;font-size:11px;font-weight:700;margin-right:4px"></span>
+        <span id="admin-current-user" style="color:var(--text-dim);font-size:11px;font-weight:700;margin-right:4px"></span>
         <button type="button" class="secondary-button danger-button" id="admin-logout-btn">Skrá út</button>
       </div>
     </div>
@@ -70,7 +71,7 @@
 
       <div id="carousel-manager-section" class="glass-panel" style="margin-top:22px" hidden>
         <h2 style="margin:0 0 6px;font:600 18px 'Space Grotesk'">Myndasyrpa á forsíðu</h2>
-        <p style="margin:0 0 14px;color:#6e8990;font-size:12px">Bættu við, fjarlægðu eða endurraðaðu myndum í myndasyrpu forsíðunnar.</p>
+        <p style="margin:0 0 14px;color:var(--text-hint);font-size:12px">Bættu við, fjarlægðu eða endurraðaðu myndum í myndasyrpu forsíðunnar.</p>
         <div class="repeat-list" id="carousel-manager-list"></div>
         <div style="display:flex;gap:8px;margin-top:12px">
           <button type="button" class="secondary-button" id="carousel-manager-add-btn">+ Bæta við mynd</button>
@@ -91,7 +92,7 @@
       <div class="glass-panel" style="margin-top:16px">
         <h2 style="margin:0 0 10px;font:600 18px 'Space Grotesk'">Hlaða inn frétt með auðkenni</h2>
         <div class="editor-toolbar">
-          <input type="text" id="news-lookup-id" placeholder="t.d. haustfagnadur-2026" style="min-width:260px;padding:11px 13px;border:1px solid rgba(160,192,195,.55);border-radius:10px;background:rgba(255,255,255,.6)">
+          <input type="text" id="news-lookup-id" placeholder="t.d. haustfagnadur-2026" style="min-width:260px;padding:11px 13px;border:1px solid rgba(var(--field-line-rgb),.55);border-radius:10px;background:rgba(255,255,255,.6)">
           <button type="button" class="secondary-button" id="news-load-btn">Sækja frétt</button>
         </div>
       </div>
@@ -105,7 +106,7 @@
         <label class="admin-field"><span>Auðkenni (slóð)</span><input type="text" id="news-id" placeholder="myndast sjálfkrafa af titli"></label>
 
         <div style="margin-top:16px">
-          <span style="display:block;margin-bottom:6px;color:#5d7b84;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">Forsíðumynd (valfrjálst)</span>
+          <span style="display:block;margin-bottom:6px;color:var(--text-dim);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase">Forsíðumynd (valfrjálst)</span>
           <div class="repeat-list" id="news-cover-manager"></div>
           <button type="button" class="secondary-button repeat-add-btn" id="news-cover-add-btn">+ Bæta við forsíðumynd</button>
           <p class="form-message" id="news-cover-message"></p>
