@@ -1017,8 +1017,39 @@
   // ---------------------------------------------------------------
   // Boot
   // ---------------------------------------------------------------
+  // "Sækja afrit": generates the plain-text content backup fresh from
+  // current Blob content (not from the last GitHub commit) and saves it
+  // locally — no GitHub access needed.
+  function initBackupButton() {
+    var btn = document.getElementById("admin-backup-btn");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      btn.disabled = true;
+      setMessage("admin-backup-message", "Sæki afrit…", "is-loading");
+      window.AdminApi.downloadBackup()
+        .then(function (result) {
+          var url = URL.createObjectURL(result.blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = result.filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          setMessage("admin-backup-message", "Afrit sótt (" + result.filename + ").", "is-success");
+        })
+        .catch(function (err) {
+          setMessage("admin-backup-message", "Ekki tókst að sækja afrit: " + err.message, "is-error");
+        })
+        .then(function () {
+          btn.disabled = false;
+        });
+    });
+  }
+
   function initDashboard() {
     initTabs();
+    initBackupButton();
     // initPagesTab does its own get-page-data fetch for the default
     // "homepage" selection (page content differs per slug, so it always
     // needs a fresh fetch on every dropdown change anyway). initNewsTab

@@ -112,6 +112,24 @@
     saveBanner: function (banner) {
       return postJson("save-banner", banner);
     },
+    // Fetches the freshly generated content backup (download-backup.js) as a
+    // Blob so the caller can save it locally — a plain <a href> can't send
+    // the Identity Authorization header, so it has to go through fetch.
+    downloadBackup: function () {
+      return authHeaders().then(function (extraHeaders) {
+        return fetch(BASE + "/download-backup", { headers: extraHeaders, cache: "no-store" });
+      }).then(function (response) {
+        if (!response.ok) {
+          return response.json().catch(function () { return {}; }).then(function (data) {
+            throw new Error((data && data.error) || ("HTTP " + response.status));
+          });
+        }
+        var match = /filename="([^"]+)"/.exec(response.headers.get("Content-Disposition") || "");
+        return response.blob().then(function (blob) {
+          return { blob: blob, filename: match ? match[1] : "afrit.csv" };
+        });
+      });
+    },
     uploadImage: function (base64) {
       return postJson("upload-image", { base64: base64 });
     }

@@ -5,17 +5,18 @@
  * else touches a Blob. On success: writes the Blob, purges this page's
  * `page-<slug>` Cache-Tag via Netlify's Purge API (see utils/purge-cache.js)
  * so the CDN's cached read is invalidated immediately, regenerates this
- * page's search-index entry, and writes a plain-text backup to the
- * school's Google Sheet. A purge or backup failure is logged but does not
- * fail the save itself, since the page content already wrote successfully.
+ * page's search-index entry, and commits the plain-text content
+ * backup to GitHub (utils/github-backup.js). A purge or backup failure is
+ * logged but does not fail the save itself, since the page content already
+ * wrote successfully.
  */
 const { pagesStore } = require("./utils/stores");
 const { requireEditor } = require("./utils/auth");
 const { pageKey } = require("./utils/blob-keys");
 const { writeConsistentHeaders } = require("./utils/cache");
-const { contentToPlainText, contentToExcerpt } = require("./utils/content-to-text");
+const { contentToExcerpt } = require("./utils/content-to-text");
 const { updateSearchIndexEntry } = require("./utils/search-index");
-const { writeSheetsBackup } = require("./utils/sheets-backup");
+const { commitContentBackup } = require("./utils/github-backup");
 const { sendBackupFailureAlert } = require("./utils/email-alert");
 const { purgeCacheTags } = require("./utils/purge-cache");
 const { pageUrlFromSlug } = require("./utils/page-url");
@@ -58,6 +59,13 @@ exports.handler = async (event, context) => {
     return { statusCode: 500, body: JSON.stringify({ error: "Failed to save page content." }) };
   }
 
+  // Best-effort content backup: started right after the Blob write so it
+  // overlaps the purge/search-index steps below, and awaited last. A failure
+  // is alerted but never fails the save.
+  const backup = commitContentBackup(`page ${slug}`).catch((err) =>
+    sendBackupFailureAlert({ type: "page", key, error: err })
+  );
+
   try {
     await purgeCacheTags(`page-${slug}`);
   } catch (err) {
@@ -79,11 +87,7 @@ exports.handler = async (event, context) => {
     console.error("save-page: search-index update failed:", err);
   }
 
-  try {
-    await writeSheetsBackup({ type: "page", key, plainText: contentToPlainText(content) });
-  } catch (err) {
-    await sendBackupFailureAlert({ type: "page", key, error: err });
-  }
+  await backup;
 
   return {
     statusCode: 200,

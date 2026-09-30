@@ -6,8 +6,9 @@
  * newest-6, and the full news-list feed — a delete changes all three the
  * same way an edit does), and removes the entry from the shared
  * search-index Blob via utils/search-index.js's removeSearchIndexEntry
- * (already existed, unused until this Function called it). No Sheets
- * backup step — that utility only records saved content, not deletions.
+ * (already existed, unused until this Function called it). Also
+ * re-commits the content backup so the deleted row disappears from the
+ * current file (git history keeps the old rows).
  */
 const { newsStore } = require("./utils/stores");
 const { requireEditor } = require("./utils/auth");
@@ -15,6 +16,8 @@ const { newsKey } = require("./utils/blob-keys");
 const { writeConsistentHeaders } = require("./utils/cache");
 const { removeSearchIndexEntry } = require("./utils/search-index");
 const { purgeCacheTags } = require("./utils/purge-cache");
+const { commitContentBackup } = require("./utils/github-backup");
+const { sendBackupFailureAlert } = require("./utils/email-alert");
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== "POST") {
@@ -47,6 +50,11 @@ exports.handler = async (event, context) => {
     return { statusCode: 500, body: JSON.stringify({ error: "Failed to delete news entry." }) };
   }
 
+  // Best-effort content backup — see save-page.js for the reasoning.
+  const backup = commitContentBackup(`deleted news ${id}`).catch((err) =>
+    sendBackupFailureAlert({ type: "news (delete)", key, error: err })
+  );
+
   try {
     await purgeCacheTags([`news-${id}`, "page-homepage", "news-list"]);
   } catch (err) {
@@ -60,6 +68,8 @@ exports.handler = async (event, context) => {
   } catch (err) {
     console.error("delete-news: search-index removal failed:", err);
   }
+
+  await backup;
 
   return {
     statusCode: 200,

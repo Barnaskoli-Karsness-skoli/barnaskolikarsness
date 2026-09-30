@@ -1,16 +1,16 @@
 /**
  * save-news.js
  * Admin-only write for a single news entry (news:<id>). Same auth-first,
- * cache-purge, search-index, and Sheets-backup pattern as save-page.js —
+ * cache-purge, search-index, and GitHub content-backup pattern as save-page.js —
  * see that file for the reasoning behind each step.
  */
 const { newsStore } = require("./utils/stores");
 const { requireEditor } = require("./utils/auth");
 const { newsKey } = require("./utils/blob-keys");
 const { writeConsistentHeaders } = require("./utils/cache");
-const { contentToPlainText, contentToExcerpt } = require("./utils/content-to-text");
+const { contentToExcerpt } = require("./utils/content-to-text");
 const { updateSearchIndexEntry } = require("./utils/search-index");
-const { writeSheetsBackup } = require("./utils/sheets-backup");
+const { commitContentBackup } = require("./utils/github-backup");
 const { sendBackupFailureAlert } = require("./utils/email-alert");
 const { purgeCacheTags } = require("./utils/purge-cache");
 
@@ -64,6 +64,11 @@ exports.handler = async (event, context) => {
     return { statusCode: 500, body: JSON.stringify({ error: "Failed to save news entry." }) };
   }
 
+  // Best-effort content backup — see save-page.js for the reasoning.
+  const backup = commitContentBackup(`news ${id}`).catch((err) =>
+    sendBackupFailureAlert({ type: "news", key, error: err })
+  );
+
   try {
     // Three cached responses embed this item: its own get-news-item.js
     // read (news-<id>), the homepage's combined read, whose 6-newest slice
@@ -86,11 +91,7 @@ exports.handler = async (event, context) => {
     console.error("save-news: search-index update failed:", err);
   }
 
-  try {
-    await writeSheetsBackup({ type: "news", key, plainText: contentToPlainText(content) });
-  } catch (err) {
-    await sendBackupFailureAlert({ type: "news", key, error: err });
-  }
+  await backup;
 
   return {
     statusCode: 200,

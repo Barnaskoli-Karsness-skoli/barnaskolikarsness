@@ -20,7 +20,7 @@
  * this is a trusted local/CI operation run with real Netlify credentials,
  * not a public request that needs the Identity/domain check those
  * Functions enforce. It intentionally skips the search-index update, the
- * Sheets backup, and the cache purge that those Functions do on every
+ * content backup, and the cache purge that those Functions do on every
  * save — this is a one-time bulk load before the site has any visitors or
  * cached reads to invalidate, not an editor's save action. Deploy once
  * after seeding so get-page-data.js's own reads warm up naturally.
@@ -359,7 +359,7 @@ async function seedNews() {
 async function main() {
   await seedPages();
   await seedNews();
-  console.log("Done. Note: this script does not update the search index, write the Sheets backup, or purge any cache — deploy/warm the site normally afterward.");
+  console.log("Done. Note: this script does not update the search index, commit the content backup, or purge any cache — deploy/warm the site normally afterward.");
 }
 
 main().catch((err) => {

@@ -1,9 +1,8 @@
 /**
  * content-to-text.js
  * Converts an Editor.js output object into plain text. One shared utility
- * used by both the search-snippet generator and the Google Sheets backup
- * (CLAUDE.md: "via one shared JSON→plain-text utility, also used for
- * search snippets"). Deliberately forgiving of unknown/future block
+ * used by both the search-snippet generator and the content backup
+ * (utils/backup-file.js). Deliberately forgiving of unknown/future block
  * types — an unrecognized block is skipped rather than throwing, since
  * Editor.js's final plugin set (Phase 7) isn't built yet.
  */
@@ -64,4 +63,48 @@ function contentToExcerpt(editorJsOutput, maxLength) {
   return text.length > limit ? text.slice(0, limit).trim() + "…" : text;
 }
 
-module.exports = { contentToPlainText, contentToExcerpt };
+// Inline links (<a href="…">text</a>) inside paragraph/header/list HTML —
+// stripInlineMarkup() drops the href along with the tag, so the content
+// backup (which must carry links, not just their visible text) collects
+// them here.
+const INLINE_LINK_RE = /<a\s[^>]*?href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+
+function inlineLinks(html) {
+  const found = [];
+  String(html || "").replace(INLINE_LINK_RE, (match, href, inner) => {
+    const text = stripInlineMarkup(inner);
+    found.push(text && text !== href ? `${text} (${href})` : href);
+    return match;
+  });
+  return found;
+}
+
+function blockToLinks(block) {
+  if (!block || !block.data) return [];
+
+  switch (block.type) {
+    case "header":
+    case "paragraph":
+      return inlineLinks(block.data.text);
+    case "list":
+      return (block.data.items || []).flatMap((item) =>
+        inlineLinks(typeof item === "string" ? item : item && item.content)
+      );
+    case "addLink":
+      if (!block.data.url) return [];
+      return [block.data.label ? `${block.data.label} (${block.data.url})` : block.data.url];
+    case "embed":
+      return block.data.url ? [block.data.url] : [];
+    default:
+      return [];
+  }
+}
+
+// Every link on a page/news item in reading order, de-duplicated — used by
+// the content backup's "Tenglar" column.
+function contentToLinks(editorJsOutput) {
+  if (!editorJsOutput || !Array.isArray(editorJsOutput.blocks)) return [];
+  return Array.from(new Set(editorJsOutput.blocks.flatMap(blockToLinks)));
+}
+
+module.exports = { contentToPlainText, contentToExcerpt, contentToLinks };

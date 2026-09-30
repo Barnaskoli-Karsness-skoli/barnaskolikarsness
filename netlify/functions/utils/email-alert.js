@@ -8,7 +8,7 @@
  */
 async function sendBackupFailureAlert({ type, key, error }) {
   const message = error && error.message ? error.message : String(error);
-  console.error(`[ALERT] Sheets backup failed for ${type} "${key}": ${message}`);
+  console.error(`[ALERT] Content backup (GitHub commit) failed after saving ${type} "${key}": ${message}`);
 }
 
 module.exports = { sendBackupFailureAlert };

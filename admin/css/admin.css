@@ -46,6 +46,7 @@
 .admin-heading h1{margin:10px 0 6px;font:700 clamp(30px,4vw,44px)/1.05 'Space Grotesk';letter-spacing:-.04em;color:var(--ink-strong)}
 .admin-heading p{max-width:480px;margin:0;color:var(--muted);font-size:13px;line-height:1.6}
 .admin-actions{display:flex;align-items:center;gap:8px}
+.admin-heading .form-message{flex-basis:100%;max-width:none;min-height:0;margin:0;text-align:right}
 
 /* ---------------------------------------------------------------
    Tabs
