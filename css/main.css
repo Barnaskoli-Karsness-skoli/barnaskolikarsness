@@ -271,6 +271,8 @@ a{color:inherit}
   transition:opacity .18s ease,transform .18s ease,visibility .18s;
   z-index:120;
 }
+/* transparent hover bridge: fills the gap so the pointer keeps :hover */
+.nav-dropdown::before{content:"";position:absolute;left:0;right:0;top:-10px;height:10px}
 .nav-item:hover .nav-dropdown,.nav-item:focus-within .nav-dropdown{
   opacity:1;visibility:visible;transform:translateY(0);
 }
@@ -610,8 +612,9 @@ a{color:inherit}
 .carousel-slide:nth-child(2){background:linear-gradient(145deg,rgba(var(--sage-rgb),.5),rgba(var(--moss-rgb),.5))}
 .carousel-slide:nth-child(3){background:linear-gradient(145deg,rgba(var(--moss-rgb),.5),rgba(var(--sage-rgb),.5))}
 .carousel-slide:nth-child(4){background:linear-gradient(145deg,rgba(var(--sage-rgb),.5),rgba(var(--mist-rgb),.7))}
-.carousel-slide-photo{padding:0;background:none}
-.carousel-slide-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.carousel-slide-photo{position:relative;overflow:hidden;min-height:0;padding:0;background:none}
+/* img is absolutely positioned so photo size can't stretch the carousel */
+.carousel-slide-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .carousel-dots{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center;gap:8px}
 .carousel-dot{
   width:9px;height:9px;padding:0;border-radius:50%;
