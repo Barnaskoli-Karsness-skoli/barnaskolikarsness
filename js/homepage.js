@@ -81,10 +81,16 @@
       goTo((index + 1) % slides.length);
     }
     function start() {
+      // Always clear first: mouseleave (and touch-emulated mouse events) can call
+      // start() without a matching mouseenter, and a bare setInterval here used
+      // to stack another 5s timer each time — the old ones were orphaned, so the
+      // slides ended up flipping several times a second.
+      clearInterval(timer);
       timer = setInterval(next, 5000);
     }
     function stop() {
       clearInterval(timer);
+      timer = null;
     }
     function restart() {
       stop();
