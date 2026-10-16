@@ -330,3 +330,13 @@ Place these Póst-IT files in a `/Postit files` folder at the project root (read
 - `Contact_info_box.txt` — confirmed real contact data (content only, ignore its green styling)
 - `Dropdown_menu.txt` — confirmed nav structure (content/structure only, ignore its green styling)
 - `Pic_carousel.txt` — working carousel interaction to reuse (behavior only, restyle the dots)
+
+---
+
+## SEO & link previews (added 2026-10-16)
+
+Primary domain: `https://barnaskolikarsness.is` (www redirects to it). `robots.txt` deliberately does not list `/admin.html`; its own `noindex` meta handles it.
+
+**Adding a new public page requires re-running, in order:** `node scripts/add-meta-tags.js` (canonical/OG/Twitter block, idempotent, wrapped in `seo-meta` marker comments; the page needs a `<title>` and `<meta name="description">` first) then `node scripts/build-sitemap.js` (regenerates `sitemap.xml` from git-tracked html files; excludes `admin.html` and `news.html`). Commit the results. Page lists come from `scripts/lib-pages.js`, so new html files must be `git add`-ed before running.
+
+Share image: `img/og-default.png` (1200x630 placeholder, built by `scripts/build-og-image.js`) — replace with the real logo card at the same path later. `news.html` only gets a static canonical/OG; per-article tags would need server-side rendering (separate future task).
