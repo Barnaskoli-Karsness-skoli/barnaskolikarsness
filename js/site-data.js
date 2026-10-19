@@ -112,8 +112,8 @@
       mapUrl: "https://ja.is/kort/?d=hashid%3AvMw014&x=357576&y=404392&type=map&nz=14.31"
     },
     officeHours: [
-      { days: "Mán – Fim", hours: "08:00–15:30" },
-      { days: "Fös", hours: "08:00–15:00" }
+      { days: "Mán – Fim", hours: "08:00–15:45" },
+      { days: "Fös", hours: "08:00–14:00" }
     ],
     externalBadges: [
       { label: "Unicef Ísland", href: "https://unicef.is" },
