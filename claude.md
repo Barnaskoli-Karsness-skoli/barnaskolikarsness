@@ -203,7 +203,7 @@ The admin's "Sýna flýtileiðir á öllum síðum" (show quick-links on all pag
 Source: `/Postit files/Contact_info_box.txt` (content only — ignore its green/white municipal styling, which does not carry over).
 
 - **Address:** Skólagerði 8, 200 Kópavogur — with a map link: `https://ja.is/kort/?d=hashid%3AvMw014&x=357576&y=404392&type=map&nz=14.31`
-- **Office hours:** Mán – Fim (Mon–Thu) 08:00–15:30, Fös (Fri) 08:00–15:00
+- **Office hours:** Mán – Fim (Mon–Thu) 08:00–15:45, Fös (Fri) 08:00–14:00 (admin Site Info is the source of truth; the values in js/site-data.js are only fallback defaults)
 - **Office phone:** 441-7000 (`tel:+3544417000`)
 - **Office email:** barnaskolikarsness@kopavogur.is
 - **Principal (Skólastjóri):** Gerður Magnúsdóttir
